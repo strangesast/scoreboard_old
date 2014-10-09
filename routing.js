@@ -9,8 +9,7 @@ function routing(params, callback) {
 	//console.log(params);
 	switch(method) {
 		case 'add':
-		  dbops.connect(dbops.count, params, function() {callback(method);});
-			//callback('update');
+		  dbops.connect(dbops.add, params, function(msg) {callback(msg);});
 			break;
 
 		case 'update':
@@ -19,8 +18,6 @@ function routing(params, callback) {
 		default:
 			callback('invalid');
 	}
-	
-	//callback('response');
 }
 
 
