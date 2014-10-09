@@ -7,17 +7,20 @@ block links
   
 
 block content
-  core-header-panel(mode="waterfall-tall", navigation, flex)
-    core-toolbar.tall.animate.category-toolbar(slide-down)
-      paper-button.large(label="Home") Scoreboard
-      span(flex)
-      paper-icon-button(icon="menu")
-      header hello
-    section
-      div.mainContainer(flex)
-        p HELLO
-        p test
-        p test
-        p test
+  scroll-area
+    core-header-panel(mode="waterfall-tall", navigation, flex)
+      core-toolbar.tall.animate.category-toolbar(slide-down)
+        paper-button.large(label="Home") #{title}
+        span(flex)
+        paper-icon-button(icon="menu")
+        header hello
+      section
+        div.mainContainer(flex)
+          p HELLO
+          p test
+          p test
+          p test
 
-  //script(src='/javascripts/index.js')
+
+block scripts
+  script(src='/javascripts/index.js')

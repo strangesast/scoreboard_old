@@ -4,21 +4,33 @@ var mongodb = require('mongodb').MongoClient;
 var config = require('./config');
 var mongoUrl = config.mongoUrl;
 
-// the big db
+
 var Db;
 
-function connect(callback) {
+
+function connect(callback, params, fin) {
 // check for active connection; if it is dead, reconnect
 	if (Db === undefined){
 		mongodb.connect(mongoUrl, function(err, db) {
 			if(err) {return callback(err);}
 			Db = db;
-			callback(null, db);
+			callback(null, db, params);
+	    console.log('connected succesfully!');
 		});
 		
 	} else {
-		callback(null, Db);
+		callback(null, Db, params);
 	}
+
+	fin();
+
+}
+
+function count(err, _db, doc) {
+	//console.log(_db);
+	//console.log(Object.keys(doc));
+	//if(err) { return console.log('updateError\n'); }
+	//_db.collection(doc.collection).count();
 }
 
 function updateDocument(err, _db, doc) {
@@ -43,5 +55,6 @@ module.exports = {
 	connect: connect,
 	update: updateDocument,
 	get: getDocument,
-	add: addDocument
+	add: addDocument,
+	count: count
 };

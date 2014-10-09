@@ -1,5 +1,6 @@
 var config = {};
 
-config.mongoUrl = 'mongo://127.0.0.1:27017/sb';
+config.name = 'Scoreboard';
+config.mongoUrl = 'mongodb://127.0.0.1:27017/sb';
 
 module.exports = config;

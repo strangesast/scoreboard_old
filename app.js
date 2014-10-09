@@ -11,6 +11,10 @@ var events = require('./routes/events');
 
 var app = express();
 
+// db object
+var Db;
+GLOBAL.window = Db;
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
