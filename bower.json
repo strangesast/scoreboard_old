@@ -1,0 +1,12 @@
+{
+  "name": "scoreboard",
+  "version": "0.0.0",
+  "dependencies": {
+    "core-elements": "Polymer/core-elements#~0.4.1",
+    "paper-elements": "Polymer/paper-elements#~0.4.1",
+    "core-icons": "Polymer/core-icons#~0.4.1",
+    "core-icon": "Polymer/core-icon#~0.4.1",
+    "core-iconset": "Polymer/core-iconset#~0.4.1",
+    "core-iconset-svg": "Polymer/core-iconset-svg#~0.4.1"
+  }
+}

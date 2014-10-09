@@ -1,0 +1,23 @@
+extends layout
+
+block links
+  link(rel='stylesheet', href='/stylesheets/index.css')
+  link(rel='import', href='/components/core-animated-pages/core-animated-pages.html')
+  
+  
+
+block content
+  core-header-panel(mode="waterfall-tall", navigation, flex)
+    core-toolbar.tall.animate.category-toolbar(slide-down)
+      paper-button.large(label="Home") Scoreboard
+      span(flex)
+      paper-icon-button(icon="menu")
+      header hello
+    section
+      div.mainContainer(flex)
+        p HELLO
+        p test
+        p test
+        p test
+
+  //script(src='/javascripts/index.js')
