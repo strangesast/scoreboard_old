@@ -1,12 +1,42 @@
 extends layout
 
 block links
-  link(rel='stylesheet', href='/stylesheets/index.css')
-  link(rel='import', href='/components/core-animated-pages/core-animated-pages.html')
   
-  
-
 block content
+  .container
+    h1 Welcome
+    if regions.length < 2
+      h3 Region #{regions[0].index}
+      p Helloo
+
+    else
+      h3 Select a region.
+      .panel-group#acc
+        for region in regions
+          .panel.panel-default
+            .panel-heading
+              h4.panel-title 
+                a.collapsed(data-toggle="collapse" data-parent="#acc" href="#collapse#{region.index}") #{region.name}
+
+            .panel-collapse.collapse(id='collapse#{region.index}')
+              .panel-body
+                if region.games.length > 0
+                  table.table.table-hover
+                    thead
+                      tr
+                      for each in header
+                        th #{each}
+
+                    tbody
+                    for game in region.games
+                      tr
+                        td
+                          a(href="#{region.index}/#{game.name}") #{game.name}
+                        td
+                          now
+
+                button.btn.btn-default
+                  span.glyphicon.glyphicon-plus 
 
 
 block scripts

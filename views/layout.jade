@@ -1,25 +1,21 @@
 doctype html
 html
   head
-    title= title
+    meta(charset="utf-8")
+    meta(http-equiv="X-UA-Compatible", content="IE-edge")
     meta(name="viewport",
          content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
-
-    link(rel='stylesheet', href='/stylesheets/style.css')
+    title= title
+    link(rel='stylesheet', href='/components/bootstrap/dist/css/bootstrap.min.css')
     block links
 
-    link(rel='import', href='/components/core-header-panel/core-header-panel.html')
-    link(rel='import', href='/components/core-toolbar/core-toolbar.html')
-    link(rel='import', href='/components/core-icons/core-icons.html')
-    link(rel='import', href='/components/paper-icon-button/paper-icon-button.html')
 
 
-
-
-  body(fullbleed unresolved)
+  body
     block content
 
 
-  //script(src='/components/platform/platform.js')
   script(src='/components/jquery/dist/jquery.min.js')
+  script(src='/components/bootstrap/dist/js/bootstrap.js')
+
   block scripts

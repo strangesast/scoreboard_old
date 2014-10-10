@@ -6,7 +6,20 @@ var routing = require('../routing');
 
 /* GET home page. */
 router.get('/', function(req, res) {
-  res.render('index', { title: config.name });
+	var obj = {title: config.name,
+	           regions: [{'name': 'South', 'index': 1, 'games': 
+							          [{'name':'test1'},
+							           {'name':'test2'}]
+						           },
+							         {'name': 'East', 'index': 0, 'games':
+											  [{'name':'test3'}]
+											 },
+							         {'name': 'West', 'index': 3, 'games':[]},
+							         {'name': 'North', 'index': 2, 'games':[]}],
+				     header: ['name', 'born on', 'players']
+	          };
+  console.log(obj.regions);
+  res.render('index', obj);
 });
 
 router.get('/:game', function(req, res) {
