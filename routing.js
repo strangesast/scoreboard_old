@@ -3,18 +3,32 @@ var dbops = require('./database');
 
 
 function routing(params, callback) {
+	// handle callback.  msg = db value / status
+	function respond(msg) {callback(msg);}
+
 	var method = params.method;
-	console.log(method);
-	//console.log(method);
-	//console.log(params);
+
 	switch(method) {
 		case 'add':
-		  dbops.connect(dbops.add, params, function(msg) {callback(msg);});
+		  dbops.connect(dbops.add, params, respond);
 			break;
 
 		case 'update':
-			callback('update');
+		  dbops.connect(dbops.update, params, respond);
 			break;
+
+		case 'count':
+		  dbops.connect(dbops.count, params, respond);
+	    break;
+
+		case 'get':
+		  dbops.connect(dbops.get, params, respond);
+		  break;
+
+	  case 'remove':
+		  dbops.connect(dbops.rem, params, responsd);
+			break;
+
 		default:
 			callback('invalid');
 	}
