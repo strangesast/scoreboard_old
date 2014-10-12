@@ -26,7 +26,7 @@ function routing(params, callback) {
 		  break;
 
 	  case 'remove':
-		  dbops.connect(dbops.rem, params, responsd);
+		  dbops.connect(dbops.rem, params, respond);
 			break;
 
 		default:

@@ -72,12 +72,19 @@ function getDocument(err, _db, doc, callback) {
 // get value
 	if(err) { return console.log('getError\n'); }
   var col;
-	_db.collection(doc.collection).find();
+	var _docs = [];
+	if(doc.params.what == "game") {
+		col = config.gameCollectionName;
+	} else if (doc.params.what == "player") {
+		col = config.playerCollectionName;
+	}
 
+	if(doc.params.who == "*") {
+	  _docs = _db.collection(col).find();
+		console.log(_docs);
+	}
+	callback("toast");
 
-	_doc ='test';
-
-	callback(_doc);
 }
 
 function addDocument(err, _db, doc, callback) {

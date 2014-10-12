@@ -22,8 +22,10 @@ router.get('/', function(req, res) {
   res.render('index', obj);
 });
 
-router.get('/:game', function(req, res) {
+
+router.get('/:region/:game', function(req, res) {
 	// pass it to a function, return game if exists, else don't
+	var region = req.params.region;
 	var game = req.params.game;
 	if(game) {
 	  res.render('each', { title: game});
@@ -43,5 +45,6 @@ router.post('/', function(req, res) {
 	data = req.body;
 	routing(data, cb);
 });
+
 
 module.exports = router;
