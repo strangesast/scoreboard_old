@@ -10,7 +10,7 @@ var Db;
 
 function connect(callback, params, fin) {
 // check for active connection; if it is dead, reconnect
-	if (Db === undefined){
+	if (Db === undefined) {
 		mongodb.connect(mongoUrl, function(err, db) {
 			if(err) {return callback(err);}
 			Db = db;
@@ -23,6 +23,7 @@ function connect(callback, params, fin) {
 	}
 
 }
+
 
 function count(err, _db, doc, callback) {
 	if(err) { return console.log('countError\n'); }
@@ -59,7 +60,7 @@ function updateDocument(err, _db, doc, callback) {
   var col;
 // update user / game / event
 	if(err) { return console.log('updateError\n'); }
-	_db.collection(doc.collection).update();
+	//_db.collection(doc.collection).update();
 
 
 	_success = false;
@@ -71,77 +72,41 @@ function updateDocument(err, _db, doc, callback) {
 function getDocument(err, _db, doc, callback) {
 // get value
 	if(err) { return console.log('getError\n'); }
-  var col;
-	var _docs = [];
-	if(doc.params.what == "game") {
-		col = config.gameCollectionName;
-	} else if (doc.params.what == "player") {
-		col = config.playerCollectionName;
-	}
-
-	if(doc.params.who == "*") {
-	  _docs = _db.collection(col).find();
-		console.log(_docs);
-	}
-	callback("toast");
-
+	var what = doc.params.what;
+	_db.collection(config[what.type + 'CollectionName'])
+	.find(what).toArray(function(err, items) {
+		console.log(items);
+	});
 }
 
 function addDocument(err, _db, doc, callback) {
 // add new user / game / event
 	if(err) { return console.log('createError\n'); }
-	var col;
-	// staged new document
-	var _doc;
 
-	var time = doc.params.availableWhen;
-	// if time is specified, use it
-	if(!time) {
-		time = new Date();
-	}
-
-	// what are you creating (user / game)
-	what = doc.params.what;
-	name = doc.params.name;
-
- 	function retCnt(err, cnt) {
- 		if(!cnt && !err) {
- 	    col.insert(_doc, function(err, docs) {
- 				console.log(docs);
- 				callback(true);
- 			});
- 
- 		} else if(err) {
- 			callback(err);
- 		} else {
- 			callback(false);
- 		}
- 	}
-
-
-	if(what=='game') {
-    _doc = {'name': name, 'members': [], created: time, 'region':0};
-		col = _db.collection(config.gameCollectionName);
-		col.find({'name':name, 'region':0}).count(retCnt);
-
-	} else if (what=='player') {
-		col = _db.collection(config.playerCollectionName);
-		// create player
-	} else {
-		
-	}
-	
-	//_db.collection(doc.collection).insert();
-	_success = false;
-	
-
-	//callback(_success);
+	elementList = doc.params.what;
+	var col = config[elementList[0].type + 'CollectionName'];
+  _db.collection(col).insert(elementList, function(err, docs) {
+		var res = docs;
+		callback(res);
+	});
 }
 
 function removeDocument(err, _db, doc, callback) {
-	console.log('not yet');
-	callback('not yet');
+	var what = doc.params.what;
+	var col = config[what[0].type + 'CollectionName'];
+	var idList = [];
+	console.log(what, col, idList);
+	for(var i=0; i<what.length; i++) {
+		idList.push(what[i]._id);
+	}
+
+	_db.collection(col).remove({'_id':{'$in':idList}},
+														 {w:1}, function(err, result) {
+		console.log(result.result);
+	});
+
 }
+
 
 module.exports = {
 	connect: connect,
