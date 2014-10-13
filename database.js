@@ -17,7 +17,7 @@ function connect(callback, params, fin) {
 			callback(null, db, params, fin);
 	    console.log('connected succesfully at ' + mongoUrl);
 		});
-		
+
 	} else {
 		callback(null, Db, params, fin);
 	}
@@ -26,6 +26,7 @@ function connect(callback, params, fin) {
 
 
 function count(err, _db, doc, callback) {
+	console.log(doc);
 	if(err) { return console.log('countError\n'); }
   var col;
 	var cur;
@@ -71,11 +72,12 @@ function updateDocument(err, _db, doc, callback) {
 
 function getDocument(err, _db, doc, callback) {
 // get value
+	console.log(doc);
 	if(err) { return console.log('getError\n'); }
 	var what = doc.params.what;
 	_db.collection(config[what.type + 'CollectionName'])
 	.find(what).toArray(function(err, items) {
-		console.log(items);
+		callback(items);
 	});
 }
 
@@ -102,9 +104,8 @@ function removeDocument(err, _db, doc, callback) {
 
 	_db.collection(col).remove({'_id':{'$in':idList}},
 														 {w:1}, function(err, result) {
-		console.log(result.result);
+		callback(result);
 	});
-
 }
 
 

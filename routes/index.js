@@ -18,8 +18,15 @@ router.get('/', function(req, res) {
 							         {'name': 'North', 'index': 2, 'games':[]}],
 				     header: ['name', 'born on', 'players']
 	          };
-  console.log(obj.regions);
-  res.render('index', obj);
+
+	var data = {"method":"get", "params":{"what":{"type": "region"}}};
+		
+	function cb(msg) {
+		console.log(msg);
+    res.render('index', obj);
+	}
+
+  routing(data, cb);
 });
 
 
