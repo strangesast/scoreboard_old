@@ -4,7 +4,6 @@ var mongodb = require('mongodb').MongoClient;
 var config = require('./config');
 var mongoUrl = config.mongoUrl;
 
-
 var Db;
 
 
@@ -72,11 +71,12 @@ function updateDocument(err, _db, doc, callback) {
 
 function getDocument(err, _db, doc, callback) {
 // get value
-	console.log(doc);
 	if(err) { return console.log('getError\n'); }
 	var what = doc.params.what;
+	console.log(what);
 	_db.collection(config[what.type + 'CollectionName'])
 	.find(what).toArray(function(err, items) {
+		console.log(items);
 		callback(items);
 	});
 }

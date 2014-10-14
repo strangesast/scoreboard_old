@@ -5,38 +5,60 @@ block links
 block content
   .container
     h1 Welcome
-    if regions.length < 2
-      h3 Region #{regions[0].index}
-      p Helloo
+    h3 Available Games
+    #regions.panel-group
+    //if regions.length < 2
+    //  h3 #{regions[0].name}
+    //  table.table.table-hover
+    //    thead
+    //      tr
+    //        for each in header
+    //          th #{each}
 
-    else
-      h3 Select a region.
-      .panel-group#acc
-        for region in regions
-          .panel.panel-default
-            .panel-heading
-              h4.panel-title 
-                a.collapsed(data-toggle="collapse" data-parent="#acc" href="#collapse#{region.index}") #{region.name}
+    //    tbody
+    //      for game in regions[0].members
+    //        tr
+    //          td
+    //            a(href="#{regions[0]._id}/#{game.name}") #{game.name}
+    //          td
+    //            p now
+    //          td
+    //            p #{regions[0].players}
 
-            .panel-collapse.collapse(id='collapse#{region.index}')
-              .panel-body
-                if region.games.length > 0
-                  table.table.table-hover
-                    thead
-                      tr
-                      for each in header
-                        th #{each}
+    //  button.btn.btn-default
+    //    span.glyphicon.glyphicon-plus 
 
-                    tbody
-                    for game in region.games
-                      tr
-                        td
-                          a(href="#{region.index}/#{game.name}") #{game.name}
-                        td
-                          now
 
-                button.btn.btn-default
-                  span.glyphicon.glyphicon-plus 
+    //  
+
+    //else
+    //  h3 Select a region.
+    //  .panel-group#acc
+    //    for region in regions
+    //      .panel.panel-default
+    //        .panel-heading
+    //          h4.panel-title 
+    //            a.collapsed(data-toggle="collapse" data-parent="#acc" href="#collapse#{region._id}") #{region.name}
+
+    //        .panel-collapse.collapse(id='collapse#{region._id}')
+    //          .panel-body
+    //            if region.members.length > 0
+    //              table.table.table-hover
+    //                thead
+    //                  tr
+    //                  for each in header
+    //                    th #{each}
+
+    //                tbody
+    //                for game in region.members
+    //                  tr
+    //                    td
+    //                      a(href="#{region._id}/#{game.name}") #{game.name}
+    //                    td
+    //                      now
+
+    //            button.btn.btn-default
+    //              span.glyphicon.glyphicon-plus 
 
 
 block scripts
