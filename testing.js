@@ -77,9 +77,13 @@ var params1 = JSON.stringify({"method":"add", "params":
 
 
 var params2 = JSON.stringify({"method": "get", "params":
-														 {"what":{'type':'game', '_id':'109f4b3c'}}
+														 {"what":{'type':'game', '_id':{$in:[exGame._id, exGame2._id]}}}
                             });
+var params3 = JSON.stringify({"method": "test", "params":
+                             {"what":{"type":"game"}}
+                             });
 
 //dbops.connect(dbops.rem, JSON.parse(params), respond);
-dbops.connect(dbops.add, JSON.parse(params1), respond);
-//dbops.connect(dbops.get, JSON.parse(params2), respond);
+//dbops.connect(dbops.add, JSON.parse(params1), respond);
+dbops.connect(dbops.get, JSON.parse(params2), respond);
+//dbops.connect(dbops.count, JSON.parse(params3), respond);

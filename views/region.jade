@@ -1,0 +1,13 @@
+extends layout
+
+block content
+  .container
+    h1 Welcome to #{region.name}
+    if region.members.length > 0
+      ul.list-group.games
+        for member in region.members
+          li.list-group-item
+            a(href="/#{member._id}") #{member.name}
+
+block scripts
+  script(src="/javascripts/region.js")

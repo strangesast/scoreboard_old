@@ -24,6 +24,20 @@ function connect(callback, params, fin) {
 }
 
 
+function countDocuments(err, _db, doc, callback) {
+	if(err) { return console.log('testError\n'); }
+	var what = doc.params.what;
+	var type = what.type;
+	var col = _db.collection(what + 'CollectionName');
+	var cur = col.find(doc.params.what);
+
+	cur.toArray(function(err, items) {
+		console.log(items);
+		callback(items.length);
+	});
+}
+
+
 function count(err, _db, doc, callback) {
 	console.log(doc);
 	if(err) { return console.log('countError\n'); }
@@ -114,6 +128,6 @@ module.exports = {
 	update: updateDocument,
 	get: getDocument,
 	add: addDocument,
-	count: count,
-	rem: removeDocument
+	count: countDocuments,
+	rem: removeDocument,
 };

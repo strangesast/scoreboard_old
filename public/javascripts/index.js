@@ -8,7 +8,6 @@ function getAvailableRegions() {
 
 function getGameById(obj, callback) {
 	var objId = obj.id;
-	console.log(objId);
 	var req = {'method':'get', 'params':
 		         {'what':{'type':'game', '_id':objId}}
 	          };
@@ -67,7 +66,8 @@ function returnRegionPanel(data) {
 		pb.append(ul);
 	}
 
-	var bt = $("<button/>", {"class":"btn btn-default"});
+	var bt = $("<a/>", {"class":"btn btn-default",
+	                    "href":"/" + data._id + "/add"});
   var ic = $("<span/>", {"class":"glyphicon glyphicon-plus"});
 
 	p.append(ph.append(he.append(al)))
@@ -79,12 +79,13 @@ function returnRegionPanel(data) {
 
 function renderGameInfo(obj, values) {
 	var vals = values[0];
+	console.log('boj');
 	// list element
 	var li = $("<li/>", {"id": vals._id,
 	                     "class": "list-group-item"});
 
 	// link to game page
-  var a = $("<a/>", {"href" : "/",
+  var a = $("<a/>", {"href" : "/" + vals._id,
 	                   "text" : vals.name});
   // list how many players in game
 	var b = $("<span/>", {"class":"badge",
