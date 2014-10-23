@@ -87,6 +87,7 @@ function getDocument(err, _db, doc, callback) {
 // get value
 	if(err) { return console.log('getError\n'); }
 	var what = doc.params.what;
+	console.log('what');
 	console.log(what);
 	_db.collection(config[what.type + 'CollectionName'])
 	.find(what).toArray(function(err, items) {
@@ -94,6 +95,29 @@ function getDocument(err, _db, doc, callback) {
 		callback(items);
 	});
 }
+
+// new getdocuments
+
+function get(err, _db, what, callback) {
+	if(err) { return console.log(err);}
+	var colName = config[what.type + 'CollectionName'];
+	var col = _db.collection(colName);
+	// if name is specified, get those names, else get all
+  if('name' in what) {
+		col.find({'name': { '$in' : what.name}}).toArray(function(err, items) {
+			callback(items);
+		});
+  } else if ('id' in what) {
+		col.find({'_id': { '$in' : what._id}}).toArray(function(err, items) {
+			callback(items);
+		});
+	} else {
+    col.find().toArray(function(err, items) {
+      callback(items);
+    });
+	}
+}
+
 
 function addDocument(err, _db, doc, callback) {
 // add new user / game / event
@@ -123,6 +147,39 @@ function removeDocument(err, _db, doc, callback) {
 }
 
 
+// try to move all requests through this function
+function genericRequest(what, callback, params) {
+	// what -- what are you looking for
+	// callback
+	// params -- type array of parameters [x1, x2] --> function(x1, x2)
+	function _fin(objects) {
+		callback(objects);
+	}
+
+	var action = what.action;
+	var func;
+	if (action == 'get') {
+		func = get;
+	}
+	if ('region' in what) {
+		regions = what.region;
+		submit = {'type': 'region'};
+		if(regions.length > 0) {
+			submit.name = regions;
+		}
+		connect(func, submit, _fin);
+	}
+	else if ('game' in what) {
+		games = what.game;
+		console.log(games);
+	}
+	else if ('player' in what) {
+		players = what.player;
+		console.log(players);
+	}
+}
+
+
 module.exports = {
 	connect: connect,
 	update: updateDocument,
@@ -130,4 +187,5 @@ module.exports = {
 	add: addDocument,
 	count: countDocuments,
 	rem: removeDocument,
+	genericRequest: genericRequest
 };

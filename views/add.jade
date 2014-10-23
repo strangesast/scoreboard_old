@@ -4,3 +4,12 @@ block content
   .container
     h1 #{region.name}
     h3 Add a game to this region.
+    .form(role="form").form-horizontal#gameNameForm
+      .form-group
+        .col-sm-4
+          label(for="gameNameInput") Game Name
+          input(type="text", placeholder="name", name="name").form-control#gameNameInput
+      button(type="submit" disabled).btn.btn-primary#submit Next
+
+block scripts
+  script(src="/javascripts/add.js")

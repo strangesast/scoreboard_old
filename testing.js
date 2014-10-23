@@ -66,14 +66,30 @@ var exRegion1 = {
 	'members': [exGame3._id]
 };
 
+var exBoard = {
+	'type': 'display',
+	'name': 'testDisplay',
+	'_id': 'abcdef12',
+};
+
+
+var exRegion3 = {
+  'type': 'region',
+	'name': 'west',
+	'_id': '5d2919fa',
+	'members': [exBoard._id]
+};
+
+
+
 
 
 var params = JSON.stringify({"method":"rem", "params":
-														 {"what":[{'type':'region', '_id':'3ebfa301'}]}
+														 {"what":[{'type':'region', '_id':'5d2919fa'}]}
                             });
 
 var params1 = JSON.stringify({"method":"add", "params":
-														{"what":[exGame3]}});
+														{"what":[exRegion3]}});
 
 
 var params2 = JSON.stringify({"method": "get", "params":
@@ -84,6 +100,6 @@ var params3 = JSON.stringify({"method": "test", "params":
                              });
 
 //dbops.connect(dbops.rem, JSON.parse(params), respond);
-//dbops.connect(dbops.add, JSON.parse(params1), respond);
-dbops.connect(dbops.get, JSON.parse(params2), respond);
+dbops.connect(dbops.add, JSON.parse(params1), respond);
+//dbops.connect(dbops.get, JSON.parse(params2), respond);
 //dbops.connect(dbops.count, JSON.parse(params3), respond);

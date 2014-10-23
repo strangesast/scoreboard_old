@@ -8,5 +8,6 @@ config.gameCollectionName = 'games';
 config.teamCollectionName = 'teams';
 config.playerCollectionName = 'players';
 config.regionCollectionName = 'regions';
+config.displayCollectionName = 'displays';
 
 module.exports = config;

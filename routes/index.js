@@ -11,6 +11,19 @@ router.get('/', function(req, res) {
 	res.render('index', obj);
 });
 
+router.get('/admin', function(req, res) {
+	function render(obj) {
+		if(obj === undefined) {obj={};}
+		console.log(obj);
+		//res.render('admin', obj);
+		res.send(obj);
+	}
+
+	action = {'action':'get', 'game': [], 'region': []};
+	dbops.genericRequest(action, render, 'admin');
+});
+
+
 router.get('/:regionid/add', function(req, res) {
 	var _id = req.params.regionid;
 	function cb(obj) {
@@ -23,6 +36,10 @@ router.get('/:regionid/add', function(req, res) {
 	routing({'method':'get', 'params':{'what':
 					{'type':'region', '_id':_id}}}, cb);
 });
+
+
+// at some point write generic function:
+// function genericRequest('what', 'callback', 'callback params') {}
 
 
 router.get('/:regionid/', function(req, res) {
