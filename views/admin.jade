@@ -6,9 +6,16 @@ block content
     h3 Game Settings
       // list all games in each region
     h3 Display Settings
+    .well
+      .input-group.col-md-5
+        input(type="text", placeholder="display address")#displayAddress
+      .btn-group
+        button(type="button")#displayAddressTest.btn.btn-default Test
+        button(type="button")#displayAddressSubmit.btn.btn-default Connect
       // display boards in each region
 
 
 
 
 block scripts
+  script(src='/javascripts/admin.js')

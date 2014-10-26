@@ -3,6 +3,7 @@ var config = require('../config');
 var bodyParser = require('body-parser');
 var router = express.Router();
 var routing = require('../routing');
+var request = require('request');
 var dbops = require('../database');
 
 /* GET home page. */
@@ -15,8 +16,8 @@ router.get('/admin', function(req, res) {
 	function render(obj) {
 		if(obj === undefined) {obj={};}
 		console.log(obj);
-		//res.render('admin', obj);
-		res.send(obj);
+		res.render('admin', obj);
+		//res.send(obj);
 	}
 
 	action = {'action':'get', 'game': [], 'region': []};
@@ -81,6 +82,8 @@ router.get('/:game/', function(req, res) {
 // if you get a post at index
 router.post('/', function(req, res) {
 	function cb(msg) {
+		console.log('smg');
+		console.log(msg);
 		res.writeHead(200, {'Content-Type':'application/json'});
 		res.write(JSON.stringify(msg));
 		res.end();
