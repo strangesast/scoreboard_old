@@ -82,8 +82,6 @@ router.get('/:game/', function(req, res) {
 // if you get a post at index
 router.post('/', function(req, res) {
 	function cb(msg) {
-		console.log('smg');
-		console.log(msg);
 		res.writeHead(200, {'Content-Type':'application/json'});
 		res.write(JSON.stringify(msg));
 		res.end();

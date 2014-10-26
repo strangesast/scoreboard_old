@@ -4,10 +4,11 @@ function testDisplayConnection (displayAddress, callback) {
 	// verify that display can be accessed
 	var obj = {'method': 'test'};
 	console.log(displayAddress);
-	request.post(displayAddress, obj, function(err, response, body) {
-		if(err) {callback('error');
+	request.post({url: displayAddress, form: obj}, function(err, response, body) {
+		if(err) {callback('notConnected');
 		} else if (response.statusCode != 200) {
-			callback('invalid');
+			callback(body);
+			//callback('invalidRequest');
 		} else {
 			callback(body);
 		}
