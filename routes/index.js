@@ -21,6 +21,10 @@ router.get('/admin', function(req, res) {
 	}
 
 	action = {'action':'get', 'game': [], 'region': []};
+	
+	// should be asked by page itself
+	//action = {'method':'get', 'what': [{'type':'player'}]}
+	
 	dbops.genericRequest(action, render, 'admin');
 });
 
