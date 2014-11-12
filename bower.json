@@ -6,5 +6,9 @@
     "bootstrap": "~3.2.0",
     "polymer": "~0.4.2",
     "custom-elements": "../scoreboardComponents/app/elements/"
+  },
+  "resolutions": {
+    "polymer": "^0.5.0",
+    "core-component-page": "^0.5.0"
   }
 }
