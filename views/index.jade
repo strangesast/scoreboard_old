@@ -1,12 +1,22 @@
 extends layout
 
 block links
+  link(rel="import", href="/components/paper-button/paper-button.html")
+  link(rel="import", href="/components/core-icon/core-icon.html")
+  ligk(rel="import", href="/components/custom-elements/full-viewport/full-viewport.html")
+  link(rel="import", href="/components/custom-elements/contact-strip/contact-strip.html")
   
 block content
-  .container
-    h1 Welcome
-    h3 Available Games
-    #regions.panel-group
+  body(unresolved, style="margin:0;")
+    full-viewport(name="scoreboard")
+      #overview
+        p Hello
+        div(horizontal center-justified layout)
+          paper-button(raised) DEMO
+
+      #footer(horizontal layout center-justified)
+        contact-strip
+
 
 
 block scripts
