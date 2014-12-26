@@ -1,0 +1,8 @@
+{
+  "name": "scoreboard",
+  "version": "0.0.1",
+  "dependencies": {
+    "jquery": "~2.1.1",
+    "handlebars": "~2.0.0"
+  }
+}
