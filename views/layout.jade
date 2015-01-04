@@ -6,22 +6,16 @@ html
     meta(name="description",content="")
     meta(name="viewport", content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes")
     title Scoreboard
-
-    script(src="/components/platform/platform.js")
-    link(rel="import", href="/components/polymer/polymer.html")
-    link(rel="import", href="/components/custom-elements/full-viewport/full-viewport.html")
-    link(rel="import", href="/components/custom-elements/full-viewport/full-viewport.css")
-    link(rel="import", href="/components/custom-elements/contact-strip/contact-strip.html")
-    link(rel="import", href="/components/custom-elements/contact-strip/contact-strip.css")
-    link(rel="import", href="/stylesheets/style.css")
+    link(rel='stylesheet', href='/stylesheets/style.css')
 
     block links
 
 
 
-  block content
+  body
+    block content
 
-
-  script(src='/components/jquery/dist/jquery.min.js')
+  script(src="/components/jquery/dist/jquery.min.js")
 
   block scripts
+

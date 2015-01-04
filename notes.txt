@@ -1,0 +1,52 @@
+collections:
+	players
+	teams (describe collections of players)
+	displays (displayServers)
+	games
+
+
+/:type/:region_id/:team_id/:player_id
+
+/players/region --> 
+	GET: return list of player ids in region
+	POST: add player to region, team blank
+        PUT: 400 (bad request)
+        DELETE: 400
+        
+/players/region/team -->
+	GET: return list of player ids in team
+        POST: add player to team
+	PUT: accept single or list of player objects to update, notifiy if not found
+	DELETE: remove all players on team from team, change to null
+
+/players/region/team/player -->
+	GET: return player details
+	POST: add player with id = player
+	PUT: modify (merge) with player of id = player
+	DELETE: remove player on team with id
+
+/teams/region -->
+	GET: return team ids in region
+	POST, PUT, DELETE: 400
+
+/teams/region/team -->
+	GET: return team details
+	POST: add team to region of id = team
+	PUT: modify team of id = team
+
+/regions -->
+	GET: return list of regions by id
+	POST: add region
+	PUT, DELETE: 400
+
+/regions/region -->
+	GET: return region where id = region
+	POST: add new region of id = region
+	PUT: modify region of id = region
+	DELETE: remove region of id = region
+
+/games/game_id -->
+	GET: get game details
+	POST: add game of id = game_id
+	PUT: modify game of id = game_id
+	DELETE: delete
