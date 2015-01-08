@@ -62,12 +62,9 @@ function returnMatch(_params) {
 
 function validateMatch(_match, _method) {
 	// return false if combination of match and method is inappropriate
-	console.log('match');
-	console.log(_match);
 	var _keys = Object.keys(_match);
-	for(var i=0; i<_keys; i++) {
+	for(var i=0; i<_keys.length; i++) {
 		var _key = Object.keys(_match)[i]
-		// HERE
 		if(_match[_key].constructor == Array && _method != 'GET') {
 			return {'400' : 'cannot add or modify >1 subobject, only retrieve or delete'}
 		} else return true;
@@ -87,7 +84,10 @@ function returnQuery(_type, _match) {
 	if(col === undefined) {
 		return null
 	}
-	return collectionDefinitions[_type];
+	// access collection
+	// retrieve object of type, which corresponds to a collection, that
+	// matches _match parameters (for now, id)
+	return col;
 }
 
 
@@ -108,7 +108,8 @@ function handleRequest(req, res) {
 
 	// if improper, return 400, halt processing
 	var match_valid = validateMatch(match, method);
-	console.log(match);
+	console.log('valid');
+	console.log(match_valid);
 	if(match_valid != true) error.push(match_valid);
 
 
@@ -129,8 +130,6 @@ function handleRequest(req, res) {
 	} else if (['GET', 'DELETE'].indexOf(method) > -1 && error.length < 1) {
 		result = returnQuery(type, match);
 		result = match;
-		console.log(match);
-
 
 		// result should be items retrieved
 		res.send(result);
