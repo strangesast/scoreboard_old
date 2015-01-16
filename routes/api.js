@@ -40,7 +40,7 @@ function returnConnection(_url) {
 
 
 function returnType(_params) {
-	if(_params.length % 2) { return _params.slice(-1)[0]; } else return _params.slice(-2)[0];
+	if(_params.length % 2 == 1) { return _params.slice(-1)[0]; } else return _params.slice(-2)[0];
 }
 
 
@@ -61,8 +61,12 @@ function returnMatch(_params) {
 
 
 function validateMatch(_match, _method) {
+	// _match - object, _method - string
 	// return false if combination of match and method is inappropriate
 	var _keys = Object.keys(_match);
+	if(_keys.length == 0) return true;
+	if(_keys === undefined) return {'400' : 'match invalid'};
+
 	for(var i=0; i<_keys.length; i++) {
 		var _key = Object.keys(_match)[i]
 		if(_match[_key].constructor == Array && _method != 'GET') {
@@ -80,10 +84,15 @@ function validateType(_type) {
 
 
 function returnQuery(_type, _match) {
+	console.log('returnQuery');
+	console.log(_type);
+	console.log(_match);
 	var col = collectionDefinitions[_type];
 	if(col === undefined) {
 		return null
 	}
+	return [_type, _match];
+
 	// access collection
 	// retrieve object of type, which corresponds to a collection, that
 	// matches _match parameters (for now, id)
@@ -108,8 +117,6 @@ function handleRequest(req, res) {
 
 	// if improper, return 400, halt processing
 	var match_valid = validateMatch(match, method);
-	console.log('valid');
-	console.log(match_valid);
 	if(match_valid != true) error.push(match_valid);
 
 
@@ -129,7 +136,7 @@ function handleRequest(req, res) {
   // generate search parameters
 	} else if (['GET', 'DELETE'].indexOf(method) > -1 && error.length < 1) {
 		result = returnQuery(type, match);
-		result = match;
+		console.log(result);
 
 		// result should be items retrieved
 		res.send(result);
@@ -151,6 +158,7 @@ router.all('/', function(req, res) {
 	res.json('must operate on object');
 });
 
+router.all('/:first', handleRequest);
 router.all('/:first/*', handleRequest);
 
 
