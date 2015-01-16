@@ -100,6 +100,19 @@ function returnQuery(_type, _match) {
 }
 
 
+// class object (is person or game or event)
+// name
+// long_name
+// _id
+//
+// methods:
+//   isvalid (part of creation, return null if required params are not met)
+
+// class query
+// methods:
+//   isvalid (required params are there)
+
+
 function handleRequest(req, res) {
 	var method = req.method;
 	var body = req.body;
@@ -131,6 +144,7 @@ function handleRequest(req, res) {
 		// generate class object
 
 		// result should be copy of exact object(s) stored
+		result = req.body;
 		res.send(result);
 
   // generate search parameters
