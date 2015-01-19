@@ -18,7 +18,7 @@ var collectionDefinitions = {
 	'team_info' : 'teamDetails'
 }
 
-function retConProm() {
+function retConPromise() {
 	// return connection promise
 	return new Promise(function(resolve, reject) {
 		if(Db === undefined) {
@@ -83,41 +83,24 @@ function validateType(_type) {
 }
 
 
-function returnQuery(_type, _match) {
-	console.log('returnQuery');
-	console.log(_type);
-	console.log(_match);
-	var col = collectionDefinitions[_type];
-	if(col === undefined) {
-		return null
+function Item(props) {
+	// add all keys sent (probably dangerous)
+	for(var key in props) {
+		this[key] = props[key];
 	}
-	return [_type, _match];
-
-	// access collection
-	// retrieve object of type, which corresponds to a collection, that
-	// matches _match parameters (for now, id)
-	return col;
 }
 
-
-// class "objects" methods: fetch, store
-//   subclass "player"
-//   subclass "game"
-//   subclass "event"
-//   subclass "board"
-
-// parent
-// group functions, properties used by all items
-function Item(_id) {
-	if(_id) this._id = _id;
-}
-
-Item.prototype.collection = function(_collectionName) {
+Item.prototype.collection = function() {
 	// return collection object from name (in promise object)
-	var con = retConProm();
+	var con = retConPromise();
+	var collectionName = collectionDefinitions[this.type];
+
+	if(collectionName === undefined) {
+		return Promise.reject({'status' : 400, 'body' : 'invalid type'});
+	}
 
 	var col = con.then(function(db) {
-		return db.collection(_collectionName);
+		return db.collection(collectionName);
 	}, function(err) {
 		return err;
 	});
@@ -134,7 +117,7 @@ Item.prototype.validate = function(required, unallowed) {
 	});
 	var una = keys.filter(function(n) {
 		return unallowed.indexOf(n) != -1;
-	})
+	});
 	// required/unallowed for all
 	return req.length == required.length && una.length == 0;
 }
@@ -148,9 +131,9 @@ Item.prototype.fetch = function() {
 	return this.id;
 }
 
-Item.prototype.store = function(collection) {
+Item.prototype.store = function() {
 	// store new document (POST), if _id specified, overwrite with
-	// required/unallowed for all items
+	// return promise
 	var required = ['name']; 
 	var unallowed = ['id'];
 	if(this.validate(required, unallowed) !== true) {
@@ -160,7 +143,7 @@ Item.prototype.store = function(collection) {
 
 	var doc = this;
 	// return promise that resolves to docs or fails to error stuffs
-	return collection.then(function(col) {
+	return this.collection().then(function(col) {
 		return new Promise(function(resolve, reject) {
 			col.save(doc, function(err, docs) {
 			  if(err !== null) return reject({'status' : 400, 'body' : err});
@@ -172,19 +155,14 @@ Item.prototype.store = function(collection) {
 }
 
 Item.prototype.update = function() {
-	return null;
+	return Promise.reject({'status' : 501});
 }
 
 // subclass player
 function Player(props) {
 	console.log('creating player');
-	Item.call(this, props._id);
-	this.name = props.name;
-
-	// add all keys sent (probably dangerous)
-	for(var key in props) {
-		this[key] = props[key];
-	}
+	Item.call(this, props);
+	this.type = 'player_info';
 }
 
 Player.prototype = Object.create(Item.prototype);
@@ -199,38 +177,37 @@ Player.prototype.validate = function(_method) {
 		&& valid;
 }
 
-Player.prototype.collection = function() {
-	// return db collection object in promise
-	var collectionName = 'playerDetails';
-
-	// apply Item collection method
-	return Item.prototype.collection.call(this, collectionName);
-}
-
-Player.prototype.store = function() {
-	return Item.prototype.store.call(this, this.collection());
-}
-
-
 // subclass region
-function Region(props, history) {
-	Item.call(this, props._id);
-	this.name = props.name;
+function Region(props) {
+	console.log('creating region');
+	Item.call(this, props);
+	this.type = 'region_info';
 }
 
 Region.prototype = Object.create(Item.prototype);
 
+Region.prototype.validate = function(_method) {
+	// currently, no specific validation for region vs all other items
+	var valid = true;
+	var required = []; 
+	var unallowed = [];
+
+	return Item.prototype.validate.call(this, required, unallowed) 
+		&& valid;
+}
+
 // subclass player
-function Team(props, history) {
-	Item.call(this, props._id);
-	this.name = props.name;
+function Team(props) {
+	console.log('creating team');
+	Item.call(this, props);
+	this.type = 'team_info';
 }
 
 Team.prototype = Object.create(Item.prototype);
 
 function PlayerHistory(props, history) {
-	Item.call(this, props._id);
-	this.name = props.name;
+	Item.call(this, props);
+	this.type = 'player_history';
 }
 
 PlayerHistory.prototype = Object.create(Item.prototype);
@@ -240,7 +217,7 @@ var classDefs = {
 	'player_info' : Player,
 	'player_history' : PlayerHistory,
 	'region_info' : Region,
-	'team_info' : Team 
+	'team_info' : Team
 }
 
 function handleRequest(req, res) {
@@ -262,46 +239,44 @@ function handleRequest(req, res) {
 	var match_valid = validateMatch(match, method);
 	if(match_valid != true) error.push(match_valid);
 
-
-	// extract type; what kind of object is being retrieved/added
 	var type = returnType(params);
-	var type_valid = validateType(type);
-	if(type_valid != true) error.push(type_valid);
-
 	var result;
-	// generate class to be added or modified
+	var prom;
+	
+	if(!(type in classDefs)) {
+		prom = Promise.reject({'status': 400, 'body': 'invalid type'});
+	} else {
+		var object = new classDefs[type](body);
+	}
+	
 	if(['PUT', 'POST'].indexOf(method) > -1 && error.length < 1) {
 
-		// accepts only one object, should be changed to handle multiple
-		var object = new classDefs[type](body);
+		prom = prom || object.store();
 
-		var prom = object.store();
-			
 		prom.then(function(result) {
 			if('status' in result) {
 				res.status(result.status);
 			  res.send(result.body);
 			} else {
 				res.status(500);
+				res.send();
 			}
 
 		}, function(err) {
-			console.log('errror');
-			res.send(err);
+			console.log('error');
+			res.status(err.status);
+			res.send(err.body);
 		});
 
   // generate search parameters
 	} else if (['GET', 'DELETE'].indexOf(method) > -1 && error.length < 1) {
-		result = returnQuery(type, match);
-		console.log(result);
-
-		// result should be items retrieved
-		res.send(result);
+		
+		res.send([match, object]);
 
 		
   // method not PUT, POST, GET, or DELETE
 	} else if (!error) {
-		res.statusCode = 400;
+		res.status = 400;
 		res.json('invalid method');
 
   // respond with error
