@@ -12,10 +12,10 @@ var validMethods = ['GET', 'POST', 'PUT', 'DELETE'];
 
 // should be moved to config, probably
 var collectionDefinitions = {
-	'player_info' : 'playerDetails',
-	'player_history' : 'playerHistory',
-	'region_info' : 'regionDetails',
-	'team_info' : 'teamDetails'
+	'player' : 'playerDetails',
+	'playerHistory' : 'playerHistory',
+	'region' : 'regionDetails',
+	'team' : 'teamDetails'
 }
 
 function retConPromise() {
@@ -122,13 +122,13 @@ Item.prototype.validate = function(required, unallowed) {
 	return req.length == required.length && una.length == 0;
 }
 
-Item.prototype.fetch = function() {
+Item.prototype.fetch = function(_match) {
 	// retrieve object in database
-	if(_id in this) {
+	for(var key in _match) {
 		// fetch by id in type
 	};
-
-	return this.id;
+  var body = [this, _match];
+	return Promise.resolve({'status' : 200, 'body': body});
 }
 
 Item.prototype.store = function() {
@@ -162,7 +162,7 @@ Item.prototype.update = function() {
 function Player(props) {
 	console.log('creating player');
 	Item.call(this, props);
-	this.type = 'player_info';
+	this.type = 'player';
 }
 
 Player.prototype = Object.create(Item.prototype);
@@ -181,7 +181,7 @@ Player.prototype.validate = function(_method) {
 function Region(props) {
 	console.log('creating region');
 	Item.call(this, props);
-	this.type = 'region_info';
+	this.type = 'region';
 }
 
 Region.prototype = Object.create(Item.prototype);
@@ -200,24 +200,24 @@ Region.prototype.validate = function(_method) {
 function Team(props) {
 	console.log('creating team');
 	Item.call(this, props);
-	this.type = 'team_info';
+	this.type = 'team';
 }
 
 Team.prototype = Object.create(Item.prototype);
 
 function PlayerHistory(props, history) {
 	Item.call(this, props);
-	this.type = 'player_history';
+	this.type = 'playerHistory';
 }
 
 PlayerHistory.prototype = Object.create(Item.prototype);
 
 // route object names to classes
 var classDefs = {
-	'player_info' : Player,
-	'player_history' : PlayerHistory,
-	'region_info' : Region,
-	'team_info' : Team
+	'player' : Player,
+	'playerHistory' : PlayerHistory,
+	'region' : Region,
+	'team' : Team
 }
 
 function handleRequest(req, res) {
@@ -250,39 +250,28 @@ function handleRequest(req, res) {
 	}
 	
 	if(['PUT', 'POST'].indexOf(method) > -1 && error.length < 1) {
-
 		prom = prom || object.store();
 
-		prom.then(function(result) {
-			if('status' in result) {
-				res.status(result.status);
-			  res.send(result.body);
-			} else {
-				res.status(500);
-				res.send();
-			}
-
-		}, function(err) {
-			console.log('error');
-			res.status(err.status);
-			res.send(err.body);
-		});
-
-  // generate search parameters
 	} else if (['GET', 'DELETE'].indexOf(method) > -1 && error.length < 1) {
-		
-		res.send([match, object]);
+		prom = prom || object.fetch(match);
 
-		
-  // method not PUT, POST, GET, or DELETE
-	} else if (!error) {
-		res.status = 400;
-		res.json('invalid method');
-
-  // respond with error
-	} else {
-		res.send(error);
 	}
+
+	prom.then(function(result) {
+		if('status' in result) {
+			res.status(result.status);
+		  res.send(result.body);
+		} else {
+			res.status(500);
+			res.send();
+		}
+
+	}, function(err) {
+		console.log('error');
+		res.status(err.status);
+		res.send(err.body);
+	});
+
 }
 
 
