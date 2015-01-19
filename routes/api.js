@@ -18,21 +18,21 @@ var collectionDefinitions = {
 	'team_info' : 'teamDetails'
 }
 
-
-function returnConnection(_url) {
-  return new Promise(function(resolve, reject) {
+function retConProm() {
+	// return connection promise
+	return new Promise(function(resolve, reject) {
 		if(Db === undefined) {
-		  mongoClient.connect(_url, function(err, db) {
-				if(err) {
-					console.log('failed to connect to ' + mongoUrl);
-					reject(Error(err));
-				} else {
-			    console.log('mongo connection to ' + mongoUrl);
-				  Db = db;
-				  resolve(db);
-				}
-		  });
-	  } else {
+		  mongoClient.connect(mongoUrl, function(err, db) {
+		    if(err) {
+		    	console.log('failed to connect to ' + mongoUrl);
+		    	reject(err);
+		    } else {
+	        console.log('mongo connection to ' + mongoUrl);
+		    	Db = db;
+		      resolve(db);
+		    }
+	    });
+		} else {
 			resolve(Db);
 		}
 	});
@@ -78,7 +78,7 @@ function validateMatch(_match, _method) {
 
 function validateType(_type) {
 	if(Object.keys(collectionDefinitions).indexOf(_type) == -1) {
-		return {'400' : 'invalid object name'}
+		return {'400' : Object.keys(collectionDefinitions)}
 	} else return true;
 }
 
@@ -100,18 +100,148 @@ function returnQuery(_type, _match) {
 }
 
 
-// class object (is person or game or event)
-// name
-// long_name
-// _id
-//
-// methods:
-//   isvalid (part of creation, return null if required params are not met)
+// class "objects" methods: fetch, store
+//   subclass "player"
+//   subclass "game"
+//   subclass "event"
+//   subclass "board"
 
-// class query
-// methods:
-//   isvalid (required params are there)
+// parent
+// group functions, properties used by all items
+function Item(_id) {
+	if(_id) this._id = _id;
+}
 
+Item.prototype.collection = function(_collectionName) {
+	// return collection object from name (in promise object)
+	var con = retConProm();
+
+	var col = con.then(function(db) {
+		return db.collection(_collectionName);
+	}, function(err) {
+		return err;
+	});
+	
+	// return promise with collection (or error)
+	return col;
+}
+
+Item.prototype.validate = function(required, unallowed) {
+	var doc = this; // item properties
+	var keys = Object.keys(doc);
+	var req = keys.filter(function(n) {
+		return required.indexOf(n) != -1;
+	});
+	var una = keys.filter(function(n) {
+		return unallowed.indexOf(n) != -1;
+	})
+	// required/unallowed for all
+	return req.length == required.length && una.length == 0;
+}
+
+Item.prototype.fetch = function() {
+	// retrieve object in database
+	if(_id in this) {
+		// fetch by id in type
+	};
+
+	return this.id;
+}
+
+Item.prototype.store = function(collection) {
+	// store new document (POST), if _id specified, overwrite with
+	// required/unallowed for all items
+	var required = ['name']; 
+	var unallowed = ['id'];
+	if(this.validate(required, unallowed) !== true) {
+		return Promise.reject({'status' : 400, 'body' : 'required key absent or invalid key used'});
+	}
+	// continue with operation
+
+	var doc = this;
+	// return promise that resolves to docs or fails to error stuffs
+	return collection.then(function(col) {
+		return new Promise(function(resolve, reject) {
+			col.save(doc, function(err, docs) {
+			  if(err !== null) return reject({'status' : 400, 'body' : err});
+				if(docs == 1) resolve({'status' : 204});
+			 	resolve({'status': 201, 'body' : docs});
+		  });
+		})
+	});
+}
+
+Item.prototype.update = function() {
+	return null;
+}
+
+// subclass player
+function Player(props) {
+	console.log('creating player');
+	Item.call(this, props._id);
+	this.name = props.name;
+
+	// add all keys sent (probably dangerous)
+	for(var key in props) {
+		this[key] = props[key];
+	}
+}
+
+Player.prototype = Object.create(Item.prototype);
+
+Player.prototype.validate = function(_method) {
+	// currently, no specific validation for player vs all other items
+	var valid = true;
+	var required = []; 
+	var unallowed = [];
+
+	return Item.prototype.validate.call(this, required, unallowed) 
+		&& valid;
+}
+
+Player.prototype.collection = function() {
+	// return db collection object in promise
+	var collectionName = 'playerDetails';
+
+	// apply Item collection method
+	return Item.prototype.collection.call(this, collectionName);
+}
+
+Player.prototype.store = function() {
+	return Item.prototype.store.call(this, this.collection());
+}
+
+
+// subclass region
+function Region(props, history) {
+	Item.call(this, props._id);
+	this.name = props.name;
+}
+
+Region.prototype = Object.create(Item.prototype);
+
+// subclass player
+function Team(props, history) {
+	Item.call(this, props._id);
+	this.name = props.name;
+}
+
+Team.prototype = Object.create(Item.prototype);
+
+function PlayerHistory(props, history) {
+	Item.call(this, props._id);
+	this.name = props.name;
+}
+
+PlayerHistory.prototype = Object.create(Item.prototype);
+
+// route object names to classes
+var classDefs = {
+	'player_info' : Player,
+	'player_history' : PlayerHistory,
+	'region_info' : Region,
+	'team_info' : Team 
+}
 
 function handleRequest(req, res) {
 	var method = req.method;
@@ -141,11 +271,24 @@ function handleRequest(req, res) {
 	var result;
 	// generate class to be added or modified
 	if(['PUT', 'POST'].indexOf(method) > -1 && error.length < 1) {
-		// generate class object
 
-		// result should be copy of exact object(s) stored
-		result = req.body;
-		res.send(result);
+		// accepts only one object, should be changed to handle multiple
+		var object = new classDefs[type](body);
+
+		var prom = object.store();
+			
+		prom.then(function(result) {
+			if('status' in result) {
+				res.status(result.status);
+			  res.send(result.body);
+			} else {
+				res.status(500);
+			}
+
+		}, function(err) {
+			console.log('errror');
+			res.send(err);
+		});
 
   // generate search parameters
 	} else if (['GET', 'DELETE'].indexOf(method) > -1 && error.length < 1) {
@@ -155,6 +298,7 @@ function handleRequest(req, res) {
 		// result should be items retrieved
 		res.send(result);
 
+		
   // method not PUT, POST, GET, or DELETE
 	} else if (!error) {
 		res.statusCode = 400;
