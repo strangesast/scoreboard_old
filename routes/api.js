@@ -19,11 +19,11 @@ var collectionDefinitions = {
 }
 
 // rename to getDbConnection (i.e. getDbConnection(_address').then(...  )
-function retConPromise() {
+function getDbConnection(_address) {
 	// return connection promise
 	return new Promise(function(resolve, reject) {
 		if(Db === undefined) {
-		  mongoClient.connect(mongoUrl, function(err, db) {
+		  mongoClient.connect(_address, function(err, db) {
 		    if(err) {
 		    	console.log('failed to connect to ' + mongoUrl);
 		    	reject(err);
@@ -107,14 +107,14 @@ function Item(props) {
 
 Item.prototype.collection = function() {
 	// return collection object from name (in promise object)
-	var con = retConPromise();
 	var collectionName = collectionDefinitions[this.type];
 
 	if(collectionName === undefined) {
-		return Promise.reject({'status' : 400, 'body' : 'invalid type'});
+		return Promise.reject({'status' : 400, 'body' : 'invalid type or collection def. missing'});
 	}
 
-	var col = con.then(function(db) {
+	// collection
+	var col = getDbConnection(mongoUrl).then(function(db) {
 		return db.collection(collectionName);
 	}, function(err) {
 		return err;
@@ -259,7 +259,12 @@ function handleRequest(req, res) {
 	var both = processParams(params); //returnType(params);
 	var type = both.type;
 	var details = both.details;
-	prom = Promise.reject({'body' : {'details': details, 'type' : type}, 'status' : 200});
+	// replace url definitions (only for post)
+	//for(var key in details) {
+	//	body[key] = details[key];
+	//}
+
+	//prom = Promise.reject({'body' : {'details': details, 'type' : type}, 'status' : 200});
 	var result;
 	var prom;
 
