@@ -39,6 +39,20 @@ function retConPromise() {
 }
 
 
+function processParams(_params) {
+	var _i = Math.floor((_params.length - 1)/2)*2;
+	// type is last object definition
+	var _type = _params[_i];
+	var _details = {};
+	for(var i=0; i<_i+1; i+=2) {
+		_details[_params[i]] = _params[i+1];
+	}
+	return {
+		type : _type,
+		details : _details
+	}
+}
+
 function returnType(_params) {
 	if(_params.length % 2 == 1) { return _params.slice(-1)[0]; } else return _params.slice(-2)[0];
 }
@@ -239,13 +253,19 @@ function handleRequest(req, res) {
 	var match_valid = validateMatch(match, method);
 	if(match_valid != true) error.push(match_valid);
 
-	var type = returnType(params);
+	var both = processParams(params); //returnType(params);
+	var type = both.type;
+	var details = both.details;
+	prom = Promise.reject({'body' : {'details': details, 'type' : type}, 'status' : 200});
 	var result;
 	var prom;
+
+	// convert params to object
+	// funct(params) --> [object, type] (type may be undefined/null)
 	
 	if(!(type in classDefs)) {
 		prom = Promise.reject({'status': 400, 'body': 'invalid type'});
-	} else {
+	} else if (prom === undefined) {
 		var object = new classDefs[type](body);
 	}
 	
@@ -268,7 +288,7 @@ function handleRequest(req, res) {
 
 	}, function(err) {
 		console.log('error');
-		res.status(err.status);
+		res.status = err.status;
 		res.send(err.body);
 	});
 
