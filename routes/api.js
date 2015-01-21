@@ -18,6 +18,7 @@ var collectionDefinitions = {
 	'team' : 'teamDetails'
 }
 
+// rename to getDbConnection (i.e. getDbConnection(_address').then(...  )
 function retConPromise() {
 	// return connection promise
 	return new Promise(function(resolve, reject) {
@@ -220,6 +221,8 @@ var classDefs = {
 	'team' : Team
 }
 
+
+// add Promises earlier, update earlier methods (227-248)
 function handleRequest(req, res) {
 	var method = req.method;
 	var body = req.body;
