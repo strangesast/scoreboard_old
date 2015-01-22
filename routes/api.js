@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var mongodb = require('mongodb');
+var ObjectID = require('mongodb').ObjectID;
 var mongoClient = mongodb.MongoClient;
 var config = require('../config');
 var mongoUrl = config.mongoUrl;
@@ -138,16 +139,45 @@ Item.prototype.validate = function(required, unallowed) {
 }
 
 Item.prototype.fetch = function(_match) {
+	console.log('match');
+	console.log(_match);
 	// retrieve object in database
+	
+	// NEEDS TO BE IMPLIMENTED
+	//for(var key in _match) {
+	//	// fetch by id in type
+	//};
+
+	var doc = {};
+	doc.type = this.type;
+	// odd that ObjectID is required
 	for(var key in _match) {
-		// fetch by id in type
-	};
+		if(key = this.type) {
+			var val = _match[key];
+			// validate that ObjectID format is correct
+			if(ObjectID.isValid(val)) doc = {'_id' : ObjectID(_match[key])};
+			else return Promise.reject({'status': 400, 'body': 'bad id format'});
+		}
+	}
+	var id = doc._id;
+	console.log('doc');
+	console.log(doc);
+
+	var p = this.collection().then(function(col) {
+		return new Promise(function(resolve, reject) {
+			col.find(doc).toArray(function(err, documents) {
+				if(err === null) resolve({'status' : 200, 'body' : documents});
+				else reject({'status' : 500, 'body' : err});
+			});
+		});
+	});
+
   var body = [this, _match];
-	return Promise.resolve({'status' : 200, 'body': body});
+	return p
 }
 
 Item.prototype.store = function() {
-	// store new document (POST), if _id specified, overwrite with
+	// store new document (POST), if _id specified, overwrite all
 	// return promise
 	var required = ['name']; 
 	var unallowed = ['id'];
@@ -175,9 +205,9 @@ Item.prototype.update = function() {
 
 // subclass player
 function Player(props) {
-	console.log('creating player');
 	Item.call(this, props);
 	this.type = 'player';
+	console.log('created player');
 }
 
 Player.prototype = Object.create(Item.prototype);
@@ -259,9 +289,9 @@ function handleRequest(req, res) {
 	var both = processParams(params); //returnType(params);
 	var type = both.type;
 	var details = both.details;
-	// replace url definitions (only for post)
+	// if defined _id matches type, add it as id
 	//for(var key in details) {
-	//	body[key] = details[key];
+	//	if(key == type) body._id = details[key];
 	//}
 
 	//prom = Promise.reject({'body' : {'details': details, 'type' : type}, 'status' : 200});
