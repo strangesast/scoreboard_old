@@ -7,10 +7,10 @@ var boards = [];
 
 function Board(parentCanvas, x, y, number, color) {
 	console.log('new board');
-	var boardWidth = 40;
-	var boardHeight = 40;
-	this.largeRoundRadius = 6;
-	this.smallRoundRadius = 2;
+	var boardWidth = 80;
+	var boardHeight = 80;
+	this.largeRoundRadius = 12;
+	this.smallRoundRadius = 6;
 	this.parent = parentCanvas;
 	this.ctx= parentCanvas.getContext('2d');
 	this.x = x;
@@ -30,46 +30,42 @@ Board.prototype.animate = function(step) {
 	var lrr = this.largeRoundRadius;
 	var srr = this.smallRoundRadius;
 
-	function pro(delay) {
-		return new Promise(function(resolve, reject) {
-			setTimeout(function() {
-				resolve(true);
-			}, delay);
-		});
-	}
-
 	ctx.translate(x, y);
-	for(var i=0; i<0.5; i+=0.1) {
-		var p = new Promise(function(resolve, reject) {
-			console.log('frame');
-		  ctx.save();
-	    ctx.transform(1, 0, i, 1-i, 0, 0);
-      ctx.beginPath();
-	    ctx.moveTo(lrr, 0);
-	    ctx.arc(lrr, lrr, lrr, 3*Math.PI/2, Math.PI, true);
-	    ctx.lineTo(0, h-lrr);
-	    ctx.arc(srr, h - srr, srr, Math.PI, Math.PI/2, true);
-	    ctx.lineTo(w-srr, h);
-	    ctx.arc(w - srr, h - srr, srr, Math.PI/2, 0, true);
-	    ctx.lineTo(w, lrr);
-	    ctx.arc(w - lrr, lrr, lrr, 0, -Math.PI/2, true);
-	    ctx.lineTo(lrr, 0);
-	    ctx.lineWidth = 2;
-	    ctx.stroke();
-	    ctx.fillStyle = "blue";
-	    ctx.fill();
-	    ctx.closePath();
-	    ctx.beginPath();
-	    ctx.fillStyle = "white";
-	    ctx.arc(w/3, lrr, srr, 0, 2*Math.PI);
-	    ctx.arc(w*2/3, lrr, srr, 0, 2*Math.PI);
-	    ctx.fill();
-		  ctx.font = "35px Verdana";
-		  ctx.fillText("9", w/4, 35);
-		  ctx.restore();
-		});
+  ctx.save();
+	i = -1
 
-		Promise.all([p, pro(10000*i)]).then(function(values) {console.log(values)});
+	ctx.restore();
+	ctx.fillStyle = "white";
+	ctx.fillRect(0, 0, 200, 200);
+
+	var val = 1/10*Math.cos(Math.PI/2*i);
+	ctx.transform(1, 0, val, -i, 0, 0);
+  ctx.beginPath();
+  ctx.moveTo(lrr, 0);
+  ctx.arc(lrr, lrr, lrr, 3*Math.PI/2, Math.PI, true);
+  ctx.lineTo(0, h-lrr);
+  ctx.arc(srr, h - srr, srr, Math.PI, Math.PI/2, true);
+  ctx.lineTo(w-srr, h);
+  ctx.arc(w - srr, h - srr, srr, Math.PI/2, 0, true);
+  ctx.lineTo(w, lrr);
+  ctx.arc(w - lrr, lrr, lrr, 0, -Math.PI/2, true);
+  ctx.lineTo(lrr, 0);
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.fillStyle = "blue";
+  ctx.fill();
+  ctx.closePath();
+  ctx.beginPath();
+  ctx.fillStyle = "white";
+  ctx.arc(w/3, lrr, srr, 0, 2*Math.PI);
+  ctx.arc(w*2/3, lrr, srr, 0, 2*Math.PI);
+  ctx.fill();
+  ctx.font = "35px Verdana";
+  ctx.fillText("9", w/4, 35);
+  
+
+	for(var i=0, j=-10; j<10; j++, i++) {
+		setTimeout(toast, i*1000);
 	}
 
 	//for(var i=0.5; i<1.1; i+=0.1) {
