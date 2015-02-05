@@ -11,12 +11,13 @@ var Db;
 
 var validMethods = ['GET', 'POST', 'PUT', 'DELETE'];
 
-// should be moved to config, probably
+// should be moved to class definition (or config?), probably
 var collectionDefinitions = {
 	'player' : 'playerDetails',
 	'playerHistory' : 'playerHistory',
 	'region' : 'regionDetails',
-	'team' : 'teamDetails'
+	'team' : 'teamDetails',
+  'game' : 'gameDetails'
 }
 
 // rename to getDbConnection (i.e. getDbConnection(_address').then(...  )
@@ -154,6 +155,7 @@ Item.prototype.fetch = function(_match) {
 	for(var key in _match) {
 		if(key = this.type) {
 			var val = _match[key];
+
 			// validate that ObjectID format is correct
 			if(ObjectID.isValid(val)) doc = {'_id' : ObjectID(_match[key])};
 			else return Promise.reject({'status': 400, 'body': 'bad id format'});
@@ -214,12 +216,11 @@ Player.prototype = Object.create(Item.prototype);
 
 Player.prototype.validate = function(_method) {
 	// currently, no specific validation for player vs all other items
-	var valid = true;
+	var valid = true; // force invalid / valid
 	var required = []; 
 	var unallowed = [];
 
-	return Item.prototype.validate.call(this, required, unallowed) 
-		&& valid;
+	return valid ? Item.prototype.validate.call(this, required, unallowed) : valid;
 }
 
 // subclass region
@@ -241,7 +242,7 @@ Region.prototype.validate = function(_method) {
 		&& valid;
 }
 
-// subclass player
+// subclass team
 function Team(props) {
 	console.log('creating team');
 	Item.call(this, props);
@@ -257,12 +258,23 @@ function PlayerHistory(props, history) {
 
 PlayerHistory.prototype = Object.create(Item.prototype);
 
+function Game(props) {
+	console.log('creating game');
+	Item.call(this, props);
+	this.type = 'game';
+}
+
+Game.prototype = Object.create(Item.prototype);
+
+
+
 // route object names to classes
 var classDefs = {
 	'player' : Player,
 	'playerHistory' : PlayerHistory,
 	'region' : Region,
-	'team' : Team
+	'team' : Team,
+  'game' : Game
 }
 
 
