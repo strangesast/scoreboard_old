@@ -1,9 +1,14 @@
 body {
   margin: 0;
   padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  font: 14px Roboto;
 }
 
 a {
   color: #00B7FF;
+}
+
+
+.content {
+	padding: 20px;
 }
