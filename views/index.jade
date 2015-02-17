@@ -10,17 +10,20 @@ block links
   link(rel="import", href="/stylesheets/style.css")
 
 block content
-  core-scaffold
+  core-scaffold(mode="waterfall-tall")#headerbar
     core-header-panel(navigation flex)
       core-toolbar#navheader
         span Menu
       core-menu
         core-item One
         core-item Two
-    span(tool) Title
+    span(tool) Scoreboard
 
     .content
-      Toast, and toast.
+      h1 Current Games
+      p Abcd
+      p Abcd
+      p Abcd
 
 block scripts
   script(src="/javascripts/index.js")

@@ -12,3 +12,16 @@ a {
 .content {
 	padding: 20px;
 }
+
+
+core-scaffold.content {
+	background-color: blue;
+
+}
+
+
+polyfill-unscoped-rule {
+	content: '#headerbar > .content';
+	background: red;
+
+}
