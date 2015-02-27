@@ -5,12 +5,14 @@
     "jquery": "~2.1.1",
     "handlebars": "~2.0.0",
     "polymer": "Polymer/polymer#~0.5.4",
-    "core-toolbar": "Polymer/core-toolbar#~0.5.4",
+    "core-toolbar": "Polymer/core-toolbar#~0.5.5",
     "core-item": "Polymer/core-item#~0.5.4",
     "core-drawer-panel": "Polymer/core-drawer-panel#~0.5.4",
     "core-scaffold": "Polymer/core-scaffold#~0.5.4",
     "core-menu": "Polymer/core-menu#~0.5.4",
-    "core-header-panel": "Polymer/core-header-panel#~0.5.4"
+    "core-header-panel": "Polymer/core-header-panel#~0.5.4",
+    "paper-button": "Polymer/paper-button#~0.5.5",
+    "core-scroll-header-panel": "Polymer/core-scroll-header-panel#~0.5.5"
   },
   "resolutions": {
     "polymer": "~0.5.4",

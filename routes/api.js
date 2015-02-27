@@ -17,7 +17,8 @@ var collectionDefinitions = {
 	'playerHistory' : 'playerHistory',
 	'region' : 'regionDetails',
 	'team' : 'teamDetails',
-  'game' : 'gameDetails'
+  'game' : 'gameDetails',
+	'board' : 'boardDetails'
 }
 
 // rename to getDbConnection (i.e. getDbConnection(_address').then(...  )
@@ -266,20 +267,32 @@ function Game(props) {
 
 Game.prototype = Object.create(Item.prototype);
 
+function Board(props) {
+	console.log('creating board');
+	Item.call(this, props);
+	this.type = 'board';
+}
+
+Board.prototype = Object.create(Item.prototype);
+
 
 
 // route object names to classes
+// how is url def related to class
 var classDefs = {
 	'player' : Player,
 	'playerHistory' : PlayerHistory,
 	'region' : Region,
 	'team' : Team,
-  'game' : Game
+  'game' : Game,
+	'board' : Board
+
 }
 
 
 // add Promises earlier, update earlier methods (227-248)
 function handleRequest(req, res) {
+
 	var method = req.method;
 	var body = req.body;
 	var error = [];

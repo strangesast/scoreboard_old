@@ -2,28 +2,25 @@ extends layout
 
 block links
   link(rel="import", href="/components/core-toolbar/core-toolbar.html")
-  link(rel="import", href="/components/core-menu/core-menu.html")
-  link(rel="import", href="/components/core-item/core-item.html")
   link(rel="import", href="/components/core-header-panel/core-header-panel.html")
-  link(rel="import", href="/components/core-drawer-panel/core-drawer-panel.html")
-  link(rel="import", href="/components/core-scaffold/core-scaffold.html")
-  link(rel="import", href="/stylesheets/style.css")
+  link(rel="import", href="/components/paper-button/paper-button.html")
+
+  link(rel="stylesheet", href="/stylesheets/style.css")
+  link(rel="stylesheet", href="/stylesheets/index.css")
 
 block content
-  core-scaffold(mode="waterfall-tall")#headerbar
-    core-header-panel(navigation flex)
-      core-toolbar#navheader
-        span Menu
-      core-menu
-        core-item One
-        core-item Two
-    span(tool) Scoreboard
-
+  core-header-panel(flex mode="waterfall")
+    core-toolbar.medium-tall
+      paper-icon-button(icon="arrow-back")
+      span(flex) Home
+      paper-icon-button(icon="search")
     .content
-      h1 Current Games
-      p Abcd
-      p Abcd
-      p Abcd
+      h1 TOast
+        small lots of toast
+      div.panel
+        p toast
+      div.panel
+        p toast
 
 block scripts
   script(src="/javascripts/index.js")

@@ -1,27 +1,3 @@
 body {
-  margin: 0;
-  padding: 50px;
-  font: 14px Roboto;
-}
-
-a {
-  color: #00B7FF;
-}
-
-
-.content {
-	padding: 20px;
-}
-
-
-core-scaffold.content {
-	background-color: blue;
-
-}
-
-
-polyfill-unscoped-rule {
-	content: '#headerbar > .content';
-	background: red;
-
+  font-family: sans-serif;
 }
