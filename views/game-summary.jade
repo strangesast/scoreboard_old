@@ -1,0 +1,12 @@
+extends scaffold-layout
+
+block links
+  link(rel='stylesheet', href='/stylesheets/game-summary.css')
+  link(rel="import", href="/components/core-item/core-item.html")
+
+block menu-items
+  core-submenu(icon="settings")
+    core-item(label="Two")
+
+block content
+  p toast
