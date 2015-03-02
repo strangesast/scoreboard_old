@@ -4,26 +4,48 @@ block links
   link(rel="import", href="/components/core-toolbar/core-toolbar.html")
   link(rel="import", href="/components/core-header-panel/core-header-panel.html")
   link(rel="import", href="/components/paper-icon-button/paper-icon-button.html")
+  link(rel="import", href="/components/paper-button/paper-button.html")
+  link(rel="import", href="/components/paper-shadow/paper-shadow.html")
 
   link(rel="stylesheet", href="/stylesheets/style.css")
   link(rel="stylesheet", href="/stylesheets/index.css")
 
 block content
   core-header-panel(flex mode="waterfall")
-    core-toolbar
-      span(flex)
-      div.headerLinks
-        a(href="/current-game") Demo
-        a(href="/") sportsync
-        a(href="/login") Log in
-      span(flex)
+    core-toolbar(horizontal center-justified layout)
+      .header-content(fullbleed horizontal layout)
+        a(href="/" flex) sportsync
+        .page-highlights(horizontal layout)
+          a(href="/#features") features
+          a(href="/#login") log in
     .content
       .introduction
-        div
-          img(src="/images/icon_v2.svg" height=200)
-          img(src="/images/icon_light.svg" height=200)
-      h1 sportsync
-      p This is a summary, but just a brief summary.
+        .summary 
+          h1 sportsync
+          h3 collect and track athletic data
+      paper-shadow.card.section(z=0 animated)#features
+        h2 Features
+        h3 Feature 1
+        p this is a great feature
+        h3 Feature 2
+        p this is another great feature
+      paper-shadow.card.section(z=0 animated)#current-games
+        h2 Events
+        h3 Current
+        p
+          i No public events
+
+        h3 Previous
+        p
+          i No public events
+
+        h3 Upcoming
+        p
+          i No public events
+      paper-shadow.card.section(z=0 animated)#demo
+        h2 Demo
+        h3 View an example event
+
 
 block scripts
   script(src="/javascripts/index.js")

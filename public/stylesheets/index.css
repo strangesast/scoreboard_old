@@ -6,29 +6,50 @@ core-toolbar {
 	background-color: #eee;
 }
 
-.headerLinks > a {
-	padding-left: 20px;
-	padding-right: 20px;
+.header-content {
+	width: 700px;
 }
 
-.headerLinks > a:hover {
-	text-shadow: rgba(0, 0, 0, 0.5) 1px 1px;
-
+.header-content > a {
+	font-style: bold;
 }
 
+.page-highlights > a {
+	padding: 0px 10px;
+}
 
 .content {
 	margin: auto;
 	padding: 0px 8px;
-	min-height: 1000px;
-	max-width: 500px;
+	max-width: 700px;
 }
 
 .introduction {
-	text-align: center;
+	min-height: 250px;
+	margin-bottom: 10px;
+	overflow: hidden;
+	background-image: url("/images/banner.svg");
+	position: relative;
 }
 
-.introduction div {
-	margin: 0 auto;
-	display: inline-block;
+.introduction > .summary {
+	position: absolute;
+	top: 25%;
+	padding-left: 20px;
+	padding-top: 10px;
+	padding-bottom: 15px;
+	background: linear-gradient(to right, #eee, rgba(255,0,0,0));
+}
+
+.summary > h1{
+	font-size: 60px;
+	margin: 0;
+}
+
+.summary > h3{
+	margin: 0;
+}
+
+.section {
+	padding: 10px;
 }
