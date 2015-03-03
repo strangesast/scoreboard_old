@@ -4,6 +4,7 @@ block links
   link(rel='stylesheet', href='/stylesheets/game-summary.css')
   link(rel="import", href="/components/core-item/core-item.html")
   link(rel="import", href="/components/core-icon/core-icon.html")
+  link(rel="import", href="/components/custom-elements/score-box/score-box.html")
 
 block menu-header
   a(href="/") 
@@ -27,7 +28,8 @@ block page-title
 
 
 block content
-  h1 Score
+  score-box
+  
   h1 Events
   h3 Last event
   h3 Current event
