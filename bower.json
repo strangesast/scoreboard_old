@@ -14,7 +14,8 @@
     "paper-button": "Polymer/paper-button#~0.5.5",
     "core-scroll-header-panel": "Polymer/core-scroll-header-panel#~0.5.5",
     "paper-icon-button": "Polymer/paper-icon-button#~0.5.5",
-    "paper-shadow": "Polymer/paper-shadow#~0.5.5"
+    "paper-shadow": "Polymer/paper-shadow#~0.5.5",
+		"custom-elements" : "strangesast/scoreboard-elements"
   },
   "resolutions": {
     "polymer": "~0.5.4",
