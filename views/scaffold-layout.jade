@@ -21,13 +21,15 @@ html
     core-scaffold(mode="waterfall-tall")
       core-header-panel(navigation flex mode="seamed")
         core-toolbar#navheader
-          span Menu
+          block menu-header
+
         core-menu
           block menu-items
 
-      span(tool) Title
+      span(tool)
+        block page-title
+
       .content
-        p If drawer is hidden, press button to display drawer.
         block content
 
 

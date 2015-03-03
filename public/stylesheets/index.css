@@ -41,15 +41,25 @@ core-toolbar {
 	background: linear-gradient(to right, #eee, rgba(255,0,0,0));
 }
 
-.summary > h1{
+.summary > div {
+	display: inline-block;
+}
+
+.summary > img {
+	margin-right: 10px;
+}
+
+.summary > div > h1{
 	font-size: 60px;
 	margin: 0;
 }
 
-.summary > h3{
+.summary > div > h3{
 	margin: 0;
 }
 
 .section {
 	padding: 10px;
 }
+
+

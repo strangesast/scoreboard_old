@@ -2,6 +2,17 @@ body {
 
 }
 
+core-scaffold /deep/ core-toolbar {
+	background-color: #E0E0E0;
+}
+
+core-scaffold /deep/ span {
+	color: black;
+
+}
+
+
+
 #navheader {
 	background-color: #E0E0E0;
 }
