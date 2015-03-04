@@ -292,6 +292,10 @@ var classDefs = {
 
 // add Promises earlier, update earlier methods (227-248)
 function handleRequest(req, res) {
+	res.header('Access-Control-Allow-Origin', 'http://zagrobelny.us:9000');
+	res.header('Access-Control-Allow-Methods', 'GET,POST,DELETE');
+	res.header('Access-Control-Allow-Headers', 'Content-Type');
+
 
 	var method = req.method;
 	var body = req.body;
