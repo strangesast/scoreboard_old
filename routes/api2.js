@@ -80,7 +80,10 @@ function insertByDoc(doc) {
 // allowed properites
 var standard = ['name', 'type'];
 var propForType = {
-	'region' : []
+	'region' : [],
+	'player' : ['region', 'name'],
+	'game' : ['region'],
+	'server': ['region', 'address']
 };
 
 function allowedProperties(_type, _document) {
@@ -101,7 +104,8 @@ function handleError(_res, _error) {
 
 
 // validation for all types and locations
-router.all('/', function(req, res, next) {
+router.all('/*', function(req, res, next) {
+	console.log(1);
 	var method = req.method;
 	if(['GET', 'POST', 'DELETE', 'PUT'].indexOf(method) < 0) {
 		res.status(405).json('method not implemented');
@@ -111,9 +115,11 @@ router.all('/', function(req, res, next) {
 
 // for adding new regions
 // case sensitive (should fix this)
-router.post('/', function(req, res, next) {
+router.route('/')
+.post(function(req, res, next) {
+  console.log(2);
 	var body = req.body;
-	if(!('type' in body && 'name' in body)) next();
+	if(!('type' in body && 'name' in body)) next(new Error('type and name required'));
 	else if(body.type != 'region') next(new Error('root only for new regions'));
 	else {
 		var _qu = {
@@ -137,15 +143,21 @@ router.post('/', function(req, res, next) {
 			res.json(err);
 		});
 	}
-});
+})
+.get(function(req, res, next) {
+  next('route');
+}).all(function(req, res, next) {
+  next(new Error('method not supported at ' + req.path));
+})
 
 
 // validate region
-router.all('/:regionIdOrName*', function(req, res, next) {
+router.route('/:region')
+.all(function(req, res, next) {
 // regionName --> unique string defined (or generated) by the user on creation
-	console.log(1);
+	console.log(2);
 	var body = req.body;
-	var region = req.params.regionIdOrName;
+	var region = req.params.region;
 	var valid = ObjectID.isValid(region);
 	new Promise(function(resolve, reject) {
 		if(!valid) {
@@ -177,19 +189,50 @@ router.all('/:regionIdOrName*', function(req, res, next) {
 });
 
 
-router.get('/*/:objectName/:objectValue', function(req, res, next) {
-	console.log(2);
+router.all('/:regionId/:objectType/:objectId?', function(req, res, next) {
+	console.log(3)
+	var obj = {};
+	obj.type = req.params.objectType;
+	obj.region = req.region._id;
+	var _id = req.params.id;
+	if(_id !== undefined) obj.id = _id;
+	req.object = obj;
+
 	next();
 });
 
-// validation for object ids, GET
-router.get('/:regionId/:objectName/:objectValue?', function(req, res, next) {
-	console.log('3');
-	var region = req.params.regionId;
-	var type = req.params.objectName;
-	var val = req.params.objectValue;
 
-	next();
+router.post('/:regionId/:objectType/:objectId?', function(req, res, next) {
+	var body = req.body || {};
+	console.log(4);
+	console.log(body);
+	for(var key in req.object) {
+		body[key] = req.object[key];
+	}
+	var doc = allowedProperties(req.object.type, body);
+
+	res.json(doc);
+});
+
+
+router.get('/:regionId/:objectType/:objectId?', function(req, res, next) {
+	console.log('looking for:');
+	var _qu = req.object;
+	_qu.region = req.region._id;
+	console.log(_qu);
+	//_qu.region = req.region.id
+	findByQu(req.object).then(function(docs) {
+	  console.log('found:');
+		console.log(docs);
+
+		res.json(docs);
+	}).catch(function(err) {
+		res.status(err.status || 500).json(err);
+	});
+});
+
+router.get('/*/*/*', function(req, res, next) {
+  res.json(req.region);
 });
 
 // return general data regarding region

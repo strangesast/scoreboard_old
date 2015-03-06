@@ -47,7 +47,8 @@ if (app.get('env') === 'development') {
               error: err
           });
 				} else {
-			    res.status(404).json('error')
+					console.log(err);
+			    res.status(err.status || 500).send('error');
 				}
     });
 }
@@ -64,7 +65,7 @@ app.use(function(err, req, res, next) {
           error: {}
       });
 		} else {
-			res.status(404).json('error')
+			res.status(404).send(err)
 		}
 });
 
