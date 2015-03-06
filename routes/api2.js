@@ -86,11 +86,23 @@ var propForType = {
 	'server': ['region', 'address']
 };
 
-function allowedProperties(_type, _document) {
+var reqPropForType = {
+	'region' : [],
+	'player' : [],
+	'game' : [],
+	'server': []
+}
+
+function validateProperties(_type, _document) {
 	var _doc = {};
 	for(var key in _document) {
+		//
 		if(propForType[_type].indexOf(key) > -1 || standard.indexOf(key) > -1) {
 			_doc[key] = _document[key];
+		}
+		// return false if required key missing
+		if(reqPropForType[_type].indexOf(key) < 0) {
+			return false;
 		}
 	}
 	return _doc;
@@ -131,7 +143,7 @@ router.route('/')
 			if(_found.length > 0)
 			return Promise.reject({'message':'region name already exists', 'status': 409});
 
-			var _doc = allowedProperties(body.type, body); // validate keys
+			var _doc = validateProperties(body.type, body); // validate keys
 			console.log(_doc);
 			return insertByDoc(_doc);
 
@@ -152,7 +164,7 @@ router.route('/')
 
 
 // validate region
-router.route('/:region')
+router.route('/:region*')
 .all(function(req, res, next) {
 // regionName --> unique string defined (or generated) by the user on creation
 	console.log(2);
@@ -209,7 +221,7 @@ router.post('/:regionId/:objectType/:objectId?', function(req, res, next) {
 	for(var key in req.object) {
 		body[key] = req.object[key];
 	}
-	var doc = allowedProperties(req.object.type, body);
+	var doc = validateProperties(req.object.type, body);
 
 	res.json(doc);
 });
@@ -222,23 +234,34 @@ router.get('/:regionId/:objectType/:objectId?', function(req, res, next) {
 	console.log(_qu);
 	//_qu.region = req.region.id
 	findByQu(req.object).then(function(docs) {
-	  console.log('found:');
-		console.log(docs);
-
 		res.json(docs);
 	}).catch(function(err) {
 		res.status(err.status || 500).json(err);
 	});
 });
 
-router.get('/*/*/*', function(req, res, next) {
-  res.json(req.region);
-});
+//router.get('/:region/:objectType/:objectId', function(req, res, next) {
+//  res.json(req.region);
+//});
 
 // return general data regarding region
-router.get('/:regionId', function(req, res, next) {
+router.route('/:regionId')
+.get(function(req, res, next) {
 	res.json(req.region);
 })
+// HERE.  the following needs to be extended for list of docs
+.post(function(req, res, next) {
+	var doc = req.object || {};
+	if(req.body.type == undefined) next(new Error('no type specifed')); return;
+
+	doc.region = req.region._id;
+	doc = validateProperties(req.body.type, doc); 
+
+	insertByDoc(doc).then(function(docs) {
+		res.json(docs);
+	});
+
+});
 
 
 // list all regions (only for testing)
