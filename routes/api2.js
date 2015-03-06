@@ -163,6 +163,12 @@ router.route('/')
 })
 
 
+router.param('region', function(req, res, next, id) {
+	req.params.region = ObjectID.isValid(id) ? id.toLowerCase() : id;
+	next();
+});
+
+
 // validate region
 router.route('/:region*')
 .all(function(req, res, next) {
