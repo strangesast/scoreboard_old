@@ -53,10 +53,11 @@ function findById(id) {
 }
 
 
-function findByQu(qu) {
+function findByQu(qu, lm) {
+	var lm = lm || {};
 	return new Promise(function(resolve, reject) {
 		getDbConnection().then(function(db) {
-		  db.collection('history').find(qu).toArray(function(err, docs) {
+		  db.collection('history').find(qu, lm).toArray(function(err, docs) {
 		  	if(err) reject(err);
 		  	resolve(docs);
 			});
@@ -66,13 +67,27 @@ function findByQu(qu) {
 
 
 function insertByDoc(doc) {
+	var _doc = validateProperties(doc);
+	if(_doc==false) return Promise.reject(new Error('required property missing'));
 	return new Promise(function(resolve, reject) {
 		getDbConnection().then(function(db) {
-		  db.collection('history').insert(doc, function(err, docs) {
+		  db.collection('history').insert(_doc, function(err, docs) {
 		  	if(err) reject(err);
 		  	resolve(docs);
 		  });
-			resolve(doc);
+		});
+	});
+}
+
+function insertByManyDocs(docs) {
+	var _docs = [];
+	for(var i in docs) _docs[i] = validateProperties(docs[i], true);
+	return new Promise(function(resolve, reject) {
+		getDbConnection().then(function(db) {
+		  db.collection('history').insert(_docs, function(err, records) {
+		  	if(err) reject(err);
+		  	else resolve(records);
+		  });
 		});
 	});
 }
@@ -87,24 +102,31 @@ var propForType = {
 };
 
 var reqPropForType = {
-	'region' : [],
-	'player' : [],
-	'game' : [],
-	'server': []
+	'region' : ['type'],
+	'player' : ['type', 'name'],
+	'game' : ['type'],
+	'server': ['type']
 }
 
-function validateProperties(_type, _document) {
+function validateProperties(_document, _safe) {
+	// if _safe is false, unallowed prop will be stripped
+	var _fail = false;
 	var _doc = {};
+	if(typeof _document !== 'object') return false;
+	if(!('type' in _document)) return false;
+
+	for(var i in reqPropForType[_document.type]) {
+    if(!(reqPropForType[_document.type][i] in _document)) return false;
+	}
 	for(var key in _document) {
-		//
-		if(propForType[_type].indexOf(key) > -1 || standard.indexOf(key) > -1) {
+		if(propForType[_document.type].indexOf(key) > -1 || standard.indexOf(key) > -1) {
 			_doc[key] = _document[key];
-		}
-		// return false if required key missing
-		if(reqPropForType[_type].indexOf(key) < 0) {
-			return false;
+		} else {
+			_fail = true;
 		}
 	}
+	if(_safe && _fail) return false;
+
 	return _doc;
 }
 
@@ -116,8 +138,7 @@ function handleError(_res, _error) {
 
 
 // validation for all types and locations
-router.all('/*', function(req, res, next) {
-	console.log(1);
+router.all('*', function(req, res, next) {
 	var method = req.method;
 	if(['GET', 'POST', 'DELETE', 'PUT'].indexOf(method) < 0) {
 		res.status(405).json('method not implemented');
@@ -131,7 +152,12 @@ router.route('/')
 .post(function(req, res, next) {
   console.log(2);
 	var body = req.body;
-	if(!('type' in body && 'name' in body)) next(new Error('type and name required'));
+	if(!('type' in body && 'name' in body)) {
+	console.log(body);
+		var _err = new Error('type and name required');
+		_err.status = 400;
+		next(_err);
+	}
 	else if(body.type != 'region') next(new Error('root only for new regions'));
 	else {
 		var _qu = {
@@ -140,26 +166,29 @@ router.route('/')
 		};
 	  findByQu(_qu).then(function(_found) {
 			// region name already exists
-			if(_found.length > 0)
-			return Promise.reject({'message':'region name already exists', 'status': 409});
+			if(_found.length > 0) {
+				var _err = new Error('region name already exists');
+				_err.status = 409;
+			  return Promise.reject(_err);
+			}
 
-			var _doc = validateProperties(body.type, body); // validate keys
-			console.log(_doc);
-			return insertByDoc(_doc);
+			
+			return insertByDoc(body);
 
 		}).then(function(_docAdded) {
 			res.json(_docAdded);
 
 		}).catch(function(err) {
-			console.log(err);
-			res.json(err);
+			next(err);
 		});
 	}
 })
 .get(function(req, res, next) {
   next('route');
 }).all(function(req, res, next) {
-  next(new Error('method not supported at ' + req.path));
+  var _err = new Error('method not supported at ' + req.path);
+	_err.status = 400;
+	next(_err);
 })
 
 
@@ -172,101 +201,117 @@ router.param('region', function(req, res, next, id) {
 // validate region
 router.route('/:region*')
 .all(function(req, res, next) {
-// regionName --> unique string defined (or generated) by the user on creation
-	console.log(2);
-	var body = req.body;
 	var region = req.params.region;
-	var valid = ObjectID.isValid(region);
-	new Promise(function(resolve, reject) {
-		if(!valid) {
-		  var _qu = {
-		  	'type' : 'region',
-		  	'name' : region
-		  };
-	    findByQu(_qu).then(function(_found) {
-		  	if(_found.length > 0) {
-		  		region = _found[0]; // region set to id of first response
-					resolve(region);
-		  	} 
-	      reject({'error' : 'invalid region id'});
-		  });
+	var _prom = new Promise(function(resolve, reject) {
+		if(ObjectID.isValid(region)) {
+			console.log('1');
+		  // valid id, check if id exists in db
+			resolve(findById(region));
+
 		} else {
-  	  resolve(findById(region));
+		  var _qu = {};
+		 	_qu.type = 'region';
+		 	_qu.name = region;
+	    var _search = findByQu(_qu).then(function(_found) {
+		  	if(_found.length > 0) {
+		  		return _found[0]; // region set to id of first response
+		  	} else {
+				  var _err = new Error('invalid region id');
+					_err.status = 400;
+					return Promise.reject(_err);
+				}
+		  });
+
+			resolve(_search);
 		}
 	}).then(function(val) {
 		req.region = val;
-
 		next();
 
 	}).catch(function(err) {
-		if(err.hasOwnProperty('status')) res.status(err.status);
-		else if(err.hasOwnProperty('message')) res.json(err.message);
-		else res.json(err);
+		next(err);
 	});
 
 });
 
 
-router.all('/:regionId/:objectType/:objectId?', function(req, res, next) {
-	console.log(3)
-	var obj = {};
-	obj.type = req.params.objectType;
-	obj.region = req.region._id;
-	var _id = req.params.id;
-	if(_id !== undefined) obj.id = _id;
-	req.object = obj;
+router.route('/:region/:objectType/:objectProp?/:objectVal?')
+// access objects of type 'objectVal'
+// if objectVal
+.all(function(req, res, next) {
+	console.log('region: ' + req.params.region);
+	console.log('type:   ' + req.params.objectType);
+	console.log('prop:   ' + req.params.objectProp);
+	console.log('val:    ' + req.params.objectVal);
 
+	next();
+})
+.get(function(req, res, next) {
+
+	var _qu = {};
+	var _lm = {};
+
+	_qu.type = req.params.objectType;
+	_qu.region = req.region._id;
+	if(req.params.objectProp !== undefined) {
+		if(req.params.objectVal !== undefined) {
+		  _qu[req.params.objectProp] = req.params.objectVal;
+		} else {
+	  // limit search of 'region', 'objectType' to response with 'objectProp'
+			_lm[req.params.objectProp] = 1;
+		}
+	}
+
+	findByQu(_qu, _lm).then(function(docs) {
+		res.json([_qu, _lm, docs]);
+	}).catch(function(err) {
+		next(err);
+	});
+})
+.post(function(req, res, next) {
+	var _err = new Error('url not supported for this method');
+	_err.status = 400;
+	next(_err);
+})
+.put(function(req, res, next) {
+	// single objects (or several objects that match qu in req.body) can be modified here
 	next();
 });
 
 
-router.post('/:regionId/:objectType/:objectId?', function(req, res, next) {
-	var body = req.body || {};
-	console.log(4);
-	console.log(body);
-	for(var key in req.object) {
-		body[key] = req.object[key];
-	}
-	var doc = validateProperties(req.object.type, body);
-
-	res.json(doc);
-});
 
 
-router.get('/:regionId/:objectType/:objectId?', function(req, res, next) {
-	console.log('looking for:');
-	var _qu = req.object;
-	_qu.region = req.region._id;
-	console.log(_qu);
-	//_qu.region = req.region.id
-	findByQu(req.object).then(function(docs) {
-		res.json(docs);
-	}).catch(function(err) {
-		res.status(err.status || 500).json(err);
-	});
-});
-
-//router.get('/:region/:objectType/:objectId', function(req, res, next) {
-//  res.json(req.region);
-//});
-
-// return general data regarding region
 router.route('/:regionId')
 .get(function(req, res, next) {
 	res.json(req.region);
 })
 // HERE.  the following needs to be extended for list of docs
 .post(function(req, res, next) {
-	var doc = req.object || {};
-	if(req.body.type == undefined) next(new Error('no type specifed')); return;
+	// {
+	// 0 : {'type' : 'player',
+	//      'name' : {'first' : 'Sam', 'last' : 'Zagrobelny'}
+	//      },
+	// 1 : {'type' : 'player',
+	// 			'name' : {'first' : 'Jerry, 'last' : 'John'}
+	// 			}
+	// }
 
-	doc.region = req.region._id;
-	doc = validateProperties(req.body.type, doc); 
+	var body = req.body;
+	var _err = new Error('invalid format');
+	_err.status = 400;
+	for(var key in body) if(isNaN(key)) return next(_err);
+	
+	for(var key in body) {
+		body[key].region = req.region._id
+	}
 
-	insertByDoc(doc).then(function(docs) {
+	insertByManyDocs(body).then(function(docs) {
 		res.json(docs);
+	}).catch(function(err) {
+		var _err = new Error(err);
+		_err.status = 500;
+		next(_err);
 	});
-
 });
 
 
