@@ -66,6 +66,21 @@ function findByQu(qu, lm) {
 }
 
 
+function updateByQu(qu, doc, all, onlySelectedFields) {
+	// if 'all', update all that match qu
+	// if 'onlySelectedFields' only modify fields in doc, otherwise replace entire doc
+	if(onlySelectedFields) doc = {$set : doc};
+	return new Promise(function(resolve, reject) {
+		getDbConnection().then(function(db) {
+		  db.collection('history').update(qu, doc, {multi : all}, function(err, records) {
+				if(err) reject(err);
+			  resolve(records);
+			});
+		});
+	});
+}
+
+
 function insertByDoc(doc) {
 	var _doc = validateProperties(doc);
 	if(_doc==false) return Promise.reject(new Error('required property missing'));
@@ -78,6 +93,7 @@ function insertByDoc(doc) {
 		});
 	});
 }
+
 
 function insertByManyDocs(docs) {
 	var _docs = [];
@@ -275,7 +291,30 @@ router.route('/:region/:objectType/:objectProp?/:objectVal?')
 })
 .put(function(req, res, next) {
 	// single objects (or several objects that match qu in req.body) can be modified here
+	var _qu = {};
+	_qu.type = req.params.objectType;
+	_qu.region = req.region._id;
+	if(req.params.objectProp !== undefined && req.params.objectVal !== undefined) {
+		_qu[req.params.objectProp] = req.params.objectVal;
+	} else if (req.params.objectProp !== undefined || req.params.objectVal !== undefined) {
+		// should probably be an error
+		var _err = new Error('define property in req body');
+		_err.status = 400;
+		return next(_err);
+	}
+
+	// the following (..., true, true) should be modify-able by urlparams
+	updateByQu(_qu, req.body, true, true).then(function(docs) {
+		res.json(docs);
+	}).catch(function(err) {
+		var _err = new Error(err);
+		err.status = 500;
+		next(_err);
+	});
+})
+.delete(function(req, res, next) {
 	next();
+
 });
 
 
@@ -285,7 +324,6 @@ router.route('/:regionId')
 .get(function(req, res, next) {
 	res.json(req.region);
 })
-// HERE.  the following needs to be extended for list of docs
 .post(function(req, res, next) {
 	// {
 	// 0 : {'type' : 'player',
