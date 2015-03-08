@@ -98,6 +98,8 @@ function insertByDoc(doc) {
 function insertByManyDocs(docs) {
 	var _docs = [];
 	for(var i in docs) _docs[i] = validateProperties(docs[i], true);
+	// if any doc is invalid, halt insert
+	if(_docs.indexOf(false) > -1) return Promise.reject('invalid type or missing req param for type');
 	return new Promise(function(resolve, reject) {
 		getDbConnection().then(function(db) {
 		  db.collection('history').insert(_docs, function(err, records) {
@@ -107,6 +109,7 @@ function insertByManyDocs(docs) {
 		});
 	});
 }
+
 
 // allowed properites
 var standard = ['name', 'type'];
@@ -121,27 +124,30 @@ var reqPropForType = {
 	'region' : ['type'],
 	'player' : ['type', 'name'],
 	'game' : ['type'],
+	'team' : ['type'],
 	'server': ['type']
 }
 
 function validateProperties(_document, _safe) {
 	// if _safe is false, unallowed prop will be stripped
 	var _fail = false;
-	var _doc = {};
+	var _doc = _document;
 	if(typeof _document !== 'object') return false;
 	if(!('type' in _document)) return false;
+	if(Object.keys(reqPropForType).indexOf(_document.type) < 0) return false;
 
 	for(var i in reqPropForType[_document.type]) {
     if(!(reqPropForType[_document.type][i] in _document)) return false;
 	}
-	for(var key in _document) {
-		if(propForType[_document.type].indexOf(key) > -1 || standard.indexOf(key) > -1) {
-			_doc[key] = _document[key];
-		} else {
-			_fail = true;
-		}
-	}
-	if(_safe && _fail) return false;
+	// should be enabled so that unallowed props are not added
+	//for(var key in _document) {
+	//	if(propForType[_document.type].indexOf(key) > -1 || standard.indexOf(key) > -1) {
+	//		_doc[key] = _document[key];
+	//	} else {
+	//		_fail = true;
+	//	}
+	//}
+	//if(_safe && _fail) return false;
 
 	return _doc;
 }
@@ -166,10 +172,8 @@ router.all('*', function(req, res, next) {
 // case sensitive (should fix this)
 router.route('/')
 .post(function(req, res, next) {
-  console.log(2);
 	var body = req.body;
 	if(!('type' in body && 'name' in body)) {
-	console.log(body);
 		var _err = new Error('type and name required');
 		_err.status = 400;
 		next(_err);
@@ -220,7 +224,6 @@ router.route('/:region*')
 	var region = req.params.region;
 	var _prom = new Promise(function(resolve, reject) {
 		if(ObjectID.isValid(region)) {
-			console.log('1');
 		  // valid id, check if id exists in db
 			resolve(findById(region));
 
@@ -255,11 +258,6 @@ router.route('/:region/:objectType/:objectProp?/:objectVal?')
 // access objects of type 'objectVal'
 // if objectVal
 .all(function(req, res, next) {
-	console.log('region: ' + req.params.region);
-	console.log('type:   ' + req.params.objectType);
-	console.log('prop:   ' + req.params.objectProp);
-	console.log('val:    ' + req.params.objectVal);
-
 	next();
 })
 .get(function(req, res, next) {
@@ -267,19 +265,25 @@ router.route('/:region/:objectType/:objectProp?/:objectVal?')
 	var _qu = {};
 	var _lm = {};
 
+	var objProp = req.params.objectProp;
+	var objVal = req.params.objectVal;
+
 	_qu.type = req.params.objectType;
 	_qu.region = req.region._id;
-	if(req.params.objectProp !== undefined) {
-		if(req.params.objectVal !== undefined) {
-		  _qu[req.params.objectProp] = req.params.objectVal;
+	if(objProp !== undefined) {
+		if(objVal !== undefined) {
+			if(objProp == '_id') {
+				objVal = ObjectID.isValid(objVal) ? ObjectID(objVal) : objVal;
+			}
+		  _qu[objProp] = objVal;
 		} else {
 	  // limit search of 'region', 'objectType' to response with 'objectProp'
-			_lm[req.params.objectProp] = 1;
+			_lm[objProp] = 1;
 		}
 	}
 
 	findByQu(_qu, _lm).then(function(docs) {
-		res.json([_qu, _lm, docs]);
+		res.json(docs);
 	}).catch(function(err) {
 		next(err);
 	});
@@ -359,8 +363,9 @@ router.get('/', function(req, res) {
 	findByQu(_qu).then(function(_found) {
 		res.json(_found);
 	}).catch(function(err) {
-		console.log(err);
-		res.json(err);
+		var _err = new Error(err);
+		_err.status = 500;
+		next(_err);
 	});
 	
 });
