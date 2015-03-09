@@ -1,6 +1,10 @@
 body {
 	margin: 0px;
 	overflow: hidden;
-	/*background-color: black;
-	 */
+	background-color: black;
+	transition: background 1.0s linear;
+}
+
+canvas {
+	margin-top: 30%;
 }

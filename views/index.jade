@@ -12,6 +12,7 @@ block links
   link(rel="stylesheet", href="/stylesheets/index.css")
 
 block content
+  canvas#canvas(style="position:absolute; left:0px; top:80px;")
   core-header-panel(flex mode="waterfall")
     core-toolbar(horizontal center-justified layout)
       .header-content(fullbleed horizontal layout)
@@ -22,27 +23,14 @@ block content
           a(href="/#features") features
           a(href="/#login") log in
     .content
-      .introduction
-        .summary 
-          img(src="/images/icon_v2.svg" height=74)
-          div
-            h1 sportsync
-            h3 collect and track athletic data
-      paper-shadow.card.section(z=0 animated)#features
-        h2 Features
-        p this is another great feature
       paper-shadow.card.section(z=0 animated)#current-games
         h2 Events
         h3 Current
         a(href="/current-game") 
           paper-button(raised) Local Event
 
-      paper-shadow.card.section(z=0 animated)#demo
-        h2 Demo
-        h3 View an example event
-        a(href="/demo")
-          paper-button(raised).hover Demo
-
 
 block scripts
+
+  script(src="/javascripts/fonts.js")
   script(src="/javascripts/index.js")

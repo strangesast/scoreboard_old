@@ -1,96 +1,116 @@
-//$('.section').hover(function() {
-//	this.setZ(1);
-//}, function() {
-//	this.setZ(0);
-//});
-
-var back_animation = back_animation || function(canvas) {
-	var ctx = canvas.getContext('2d'); // context
-	var window_width = window.innerWidth;
-	var window_height = window.innerHeight;
-
-	canvas.width = window_width;
-	canvas.height = window_height;
-
-	function returnGradient(x, y, outerRadius, innerRadius, color1, color2) {
-	  var _grd = ctx.createRadialGradient(x, y, innerRadius, x, y, outerRadius);
-	  _grd.addColorStop(1, color1)
-	  _grd.addColorStop(0, color2);
-		return _grd;
-	}
+var intro = intro || function(canvas) {
+	var ww = window.innerWidth;
+	var wh = window.innerHeight;
+	var chars = [];
+	var text = "sportsync";
+	var psize = Math.min(800, ww-40)/(text.length*5);
+	var xstart = Math.floor((ww - psize*text.length*5)/2)
 
 
-	var circle = function(x, y) {
-		this.x = x,
-		this.y = y,
-		this.sradius: Math.floor(Math.sqrt(Math.pow(window_width/2, 2) + Math.pow(window_height/2, 2)))/2,
-		this.lradius: Math.floor(Math.sqrt(Math.pow(window_width/2, 2) + Math.pow(window_height/2, 2))),
+	canvas.width = ww;
+	canvas.height = psize*7;
+
+	var ctx = canvas.getContext('2d');
+
+	var Character = function(x, y, _charCode, ps, color) {
+		this.x = x;
+		this.y = y;
+
+		this.cc = _charCode; // goal
+		this.cn = 90;
+
+		this.color = color;
+
+		this.ps = ps || 4;
+
 		this.draw = function() {
-			ctx.beginPath();
-			ctx.arc(this.x, this.y, this.lradius, 0, Math.PI*2, true);
-			ctx.closePath();
-			ctx.fillStyle=this.color;
-			ctx.fill();
+			ctx.fillStyle = this.color;
+		  var i = (this.cn - 32)*5;
+		  var t = fonts.asciiBasic.slice(i, i+5);
+			//ctx.lineWidth = 3;
+		  for(var j=0; j<t.length; j++) {
+		  	var p = ('000000' + t[j].toString(2)).slice(-7);
+		  	for(var i=0; i<p.length; i++) {
+		  		if(p[i] == '1') ctx.fillRect(this.x + j*this.ps, this.y+(7-i)*this.ps, this.ps, this.ps);
+		  	}
+		  }
+		}
+
+		this.transition = function() {
+			if(this.cn < this.cc) {
+				this.cn++;
+  			ctx.clearRect(this.x, this.y, this.ps*5, this.ps*7);
+  			this.draw();
+			}
 		}
 	}
-	circle.color = returnGradient(circle.x, circle.y, circle.sradius, circle.lradius, "rgb(255,255,255)", "rgb(0,0,0)");
-	console.log(circle.color);
 
 
-
-	circle.draw();
-
-
-	function animate(obj, prop, val, duration) {
-		var start = new Date().getTime();
-		var end = start + duration;
-		var current = obj[prop];
-		var distance = val - current;
-
-
-	  var step = function() {
-			ctx.clearRect(0, 0, window_width, window_height);
-	  	var t = new Date().getTime();
-	  	var d = Math.min((duration - (end - t))/ duration, 1);
-
-			obj[prop] = current + (distance*d);
-			obj.draw();
-
-			if(d < 1) requestAnimationFrame(step);
-	  }
-		requestAnimationFrame(step);
+	for(var i=0; i<text.length; i++) {
+		var code = text[i].charCodeAt(0);
+		console.log(code);
+		chars.push(new Character(xstart + i*(5*psize), canvas.height-psize-(7*psize), code, psize, "white"));
 	}
 
-	function animateGrd(obj, sval, lval, duration) {
-		var start = new Date().getTime();
-		var end = start + duration;
-		var scur = obj.sradius;
-		var lcur = obj.lradius;
-		var sdist = sval - scur;
-		var ldist = lval - lcur;
-
-	  var step = function() {
-	  	var t = new Date().getTime();
-	  	var d = Math.min((duration - (end - t))/ duration, 1);
-
-			obj.color = returnGradient(obj.x, obj.y, scur + (sdist*d),lcur+(ldist*d),
-					'rgb(' + [255, 255, 255].map(function(x) {return Math.floor(x*(1-d));}).join(', ') + ')',
-						"white"
-						);
-			console.log(('rgb(' + [255, 255, 255].map(function(x) {return Math.floor(x*d);}).join(', ') + ')'));
-
-			//obj.draw();
-
-			if(d < 1) requestAnimationFrame(step);
-	  }
-		requestAnimationFrame(step);
+	var j = 0;
+	var anim = setInterval(function() {
+		br = true;
+		for(var i=0; i<chars.length; i++) {
+		  if(chars[i].cn < chars[i].cc) {
+				ctx.fillStyle = "black";
+			  ctx.fillRect(chars[i].x-1, chars[i].y-4, chars[i].ps*5+2, chars[i].ps*8+8);
+		    chars[i].cn++;
+		    chars[i].draw();
+				br = false;
+	    } else {
+				ctx.fillStyle = "white";
+			  ctx.fillRect(chars[i].x-1, chars[i].y-8, chars[i].ps*5+2, chars[i].ps*8+16);
+				chars[i].color = "black";
+		    chars[i].draw();
+			}
+		}
+		if(br) {
+			clearInterval(anim); 
+			$('body').css("background-color", "white");
+		}
+	}, 80);
+	return {
+		'redraw' : function() {
+			ww = window.innerWidth;
+	    psize = Math.min(800, ww-40)/(text.length*5);
+			wh = psize*7;
+			canvas.width = ww;
+			canvas.height = wh;
+	    xstart = Math.floor((ww - psize*text.length*5)/2)
+			ctx.clearRect(0, 0, ww, wh);
+			for(var i=0; i<chars.length; i++) {
+				chars[i].x = xstart + i*(5*psize);
+				chars[i].y = wh-psize-(7*psize);
+				chars[i].ps = psize;
+				chars[i].draw();
+			}
+		}
 	}
 
-	animateGrd(circle, circle.lradius*0.2, circle.lradius*0.4, 4000);
-	animate(circle, 'lradius', circle.lradius*0.2, 4000);
 
 }
 
+
+var ii;
 $(document).ready(function() {
-  back_animation(document.getElementById('canvas'));
+	ii = intro(document.getElementById('canvas'));
+});
+
+$(window).resize(function() {
+	clearTimeout(jj);
+	var jj = setTimeout(function() {
+		ii.redraw();
+	}, 200);
+});
+
+
+$('.section').hover(function() {
+	this.setZ(1);
+}, function() {
+	this.setZ(0);
 });
