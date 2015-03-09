@@ -111,6 +111,16 @@ function insertByManyDocs(docs) {
 }
 
 
+function createMonitored(metaDoc) {
+	var req = ['name', 'region']
+  // HERE. create db for each region
+	return new Promise(function(resolve, reject) {
+
+		resolve(metaDoc);
+	});
+}
+
+
 // allowed properites
 var standard = ['name', 'type'];
 var propForType = {
@@ -139,6 +149,7 @@ function validateProperties(_document, _safe) {
 	for(var i in reqPropForType[_document.type]) {
     if(!(reqPropForType[_document.type][i] in _document)) return false;
 	}
+
 	// should be enabled so that unallowed props are not added
 	//for(var key in _document) {
 	//	if(propForType[_document.type].indexOf(key) > -1 || standard.indexOf(key) > -1) {
@@ -308,6 +319,7 @@ router.route('/:region/:objectType/:objectProp?/:objectVal?')
 	}
 
 	// the following (..., true, true) should be modify-able by urlparams
+	//                     ^     ^
 	updateByQu(_qu, req.body, true, true).then(function(docs) {
 		res.json(docs);
 	}).catch(function(err) {
@@ -317,7 +329,9 @@ router.route('/:region/:objectType/:objectProp?/:objectVal?')
 	});
 })
 .delete(function(req, res, next) {
-	next();
+	var _err = new Error('not yet supported');
+	_err.status = 503;
+	next(_err);
 
 });
 
