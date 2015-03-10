@@ -6,6 +6,7 @@ var mongoClient = mongodb.MongoClient;
 var config = require('../config');
 var mongoUrl = config.mongoUrl;
 var url = require('url');
+var Promise = require('es6-promise').Promise;
 
 
 // all 'api' calls use db 'scoreboard-data' (live events use 'scoreboard-live')
