@@ -24,6 +24,7 @@ function getDbConnection() {
 		    mongoClient.connect(mongoUrl, function(err, db) {
 		      if(err) {
 		      	console.log('failed to connect to ' + mongoUrl);
+						console.log(err);
 		      	reject(err);
 		      } else {
 	          console.log('mongo connection to ' + mongoUrl);

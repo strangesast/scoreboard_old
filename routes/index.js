@@ -14,4 +14,13 @@ router.get('/current-game', function(req, res) {
 	res.render('game-summary');
 });
 
+router.route('/add-data')
+.get(function(req, res) {
+	res.render('add-data');
+
+})
+.post(function(req, res) {
+	next();
+
+});
 module.exports = router;

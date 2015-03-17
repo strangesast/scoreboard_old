@@ -4,7 +4,7 @@ var intro = intro || function(canvas) {
 	var chars = [];
 	var text = "sportsync";
 	var psize = Math.min(800, ww-40)/(text.length*5);
-	var xstart = Math.floor((ww - psize*text.length*5)/2)
+	var xstart = 0; //Math.floor((ww - psize*text.length*5)/2)
 
 
 	canvas.width = ww;
@@ -81,7 +81,7 @@ var intro = intro || function(canvas) {
 			wh = psize*7;
 			canvas.width = ww;
 			canvas.height = wh;
-	    xstart = Math.floor((ww - psize*text.length*5)/2)
+	    xstart = 0; // Math.floor((ww - psize*text.length*5)/2)
 			ctx.clearRect(0, 0, ww, wh);
 			for(var i=0; i<chars.length; i++) {
 				chars[i].x = xstart + i*(5*psize);

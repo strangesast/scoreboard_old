@@ -12,8 +12,7 @@ block links
   link(rel="stylesheet", href="/stylesheets/index.css")
 
 block content
-  canvas#canvas(style="position:absolute; left:0px; top:80px;")
-  core-header-panel(flex mode="waterfall")
+  core-header-panel(flex mode="seamed")
     core-toolbar(horizontal center-justified layout)
       .header-content(fullbleed horizontal layout)
         a(href="/" flex) 
@@ -23,11 +22,13 @@ block content
           a(href="/#features") features
           a(href="/#login") log in
     .content
-      paper-shadow.card.section(z=0 animated)#current-games
-        h2 Events
-        h3 Current
+      canvas#canvas
+      paper-shadow.card.section(z=1)
         a(href="/current-game") 
-          paper-button(raised) Local Event
+          paper-button Local Event
+        a(href="/current-game") 
+          paper-button Demo
+
 
 
 block scripts

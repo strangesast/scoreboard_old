@@ -29,46 +29,16 @@ core-toolbar {
 	max-width: 800px;
 }
 
-.introduction {
-	min-height: 250px;
-	margin-bottom: 10px;
-	overflow: hidden;
-	/*background-image: url("/images/banner.svg");*/
-	position: relative;
-}
-
-.introduction > .summary {
-	position: absolute;
-	top: 25%;
-	padding-left: 20px;
-	padding-top: 10px;
-	padding-bottom: 15px;
-	background: linear-gradient(to right, #eee, rgba(255,0,0,0));
-}
-
-.summary > div {
-	display: inline-block;
-}
-
-.summary > img {
-	margin-right: 10px;
-}
-
-.summary > div > h1{
-	font-size: 60px;
-	margin: 0;
-}
-
-.summary > div > h3{
-	margin: 0;
-}
-
 .section {
-	margin-top: 50%;
+	margin: auto;
+	margin-top: 15px;
+	width: 200px;
 	padding: 10px;
 }
 
-
+.section > a {
+	margin: auto;
+}
 
 canvas {
 	margin-top: 10%;
