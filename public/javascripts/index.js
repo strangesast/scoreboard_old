@@ -74,6 +74,7 @@ var intro = intro || function(canvas, _anim) {
 		}
 		if(br) {
 			clearInterval(animLoop); 
+			window.history.replaceState({}, "index", "/index");
 			$('body').css("background-color", "white");
 		}
 	}, 80);
