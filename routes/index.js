@@ -18,8 +18,8 @@ router.get('/current-game', function(req, res) {
 	res.render('game-summary');
 });
 
-router.get('/region/:region/', function(req, res) {
+router.get('/region/:region?', function(req, res) {
 	console.log(req.params);
-	res.json(req.params);
+	res.render('region-select');
 })
 module.exports = router;

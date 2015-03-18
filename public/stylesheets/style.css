@@ -1,6 +1,7 @@
-body {
+html, body {
 	margin: 0px;
   font-family: 'Lato', sans-serif;
+	height: 100%;
 }
 
 a {
@@ -30,4 +31,13 @@ noise texture
 .big {
 	height: 32px;
 	width: 32px;
+}
+
+.list-container {
+	overflow: auto;
+	height: 100%;
+}
+
+.repeated {
+	height: 600px;
 }

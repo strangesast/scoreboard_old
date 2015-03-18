@@ -1,0 +1,52 @@
+extends layout
+
+block links
+  link(rel="import", href="/components/core-list/core-list.html")
+  link(rel="import", href="/components/core-ajax/core-ajax.html")
+  link(rel="import", href="/components/core-icon-button/core-icon-button.html")
+  link(rel="import", href="/components/core-scaffold/core-scaffold.html")
+  link(rel="import", href="/components/paper-shadow/paper-shadow.html")
+
+  link(rel="import", href="/components/core-toolbar/core-toolbar.html")
+  link(rel="import", href="/components/core-icon/core-icon.html")
+  link(rel="import", href="/components/core-item/core-item.html")
+  link(rel="import", href="/components/core-menu/core-menu.html")
+  link(rel="import", href="/components/core-dropdown/core-dropdown.html")
+  link(rel="import", href="/components/core-animated-pages/core-animated-pages.html")
+  link(rel="import", href="/components/core-header-panel/core-header-panel.html")
+  link(rel="stylesheet", href="/stylesheets/style.css")
+  link(rel="stylesheet", href="/stylesheets/region-select.css")
+
+
+block content
+  template(is="auto-binding")#t
+    core-ajax(auto, url="/api", response="{{regionsAvailable}}", handleAs="json", method="GET")#getRegions
+    core-scaffold
+      core-header-panel(navigation flex mode="seamed")
+        core-toolbar
+          core-icon-button(src="/images/icon_dark_m.png")
+            span sportsync
+        core-menu(selected="{{selected}}")
+          template(repeat="{{region in regionsAvailable}}")#regionMenuList
+            core-item {{region.name}}
+      div(tool) Browse By
+      .content
+        div
+          core-animated-pages(transitions="cross-fade-all hero-transition", selected="{{selected}}")
+            .outer
+              template(repeat="{{region, i in regionsAvailable}}")#regionList
+                paper-shadow(z=1, hero?="{{selected === i}}").small
+                  .inner
+                    div(layout horizontal)
+                      core-icon-button(icon="chevron-right", on-tap="{{selectView}}")
+                      h3(flex self-center) {{region.name}}
+                      h3 {{selected}}
+                      h3 {{i}}
+                    div.summary
+                      span Players: 10, Games: 100
+                    div(cross-fade)
+                      p {{region._id}}
+
+
+block scripts
+  script(src="/javascripts/region-select.js")

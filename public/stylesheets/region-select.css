@@ -1,0 +1,21 @@
+.small {
+	margin: 15px;
+	padding: 8px;
+	max-width: 500px;
+}
+
+.outer {
+	position: relative;
+}
+
+.inner {
+	height: 200px;
+	overflow: hidden;
+}
+
+.inner > div > h3 {
+	margin: 0px;
+}
+
+.card-contents {
+}
