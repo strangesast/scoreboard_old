@@ -21,31 +21,30 @@ block links
 block content
   template(is="auto-binding")#t
     core-ajax(auto, url="/api", response="{{regionsAvailable}}", handleAs="json", method="GET")#getRegions
-    core-scaffold
+    core-scaffold#scaffold
       core-header-panel(navigation flex mode="seamed")
         core-toolbar
-          core-icon-button(src="/images/icon_dark_m.png")
-            span sportsync
+          a(href="/index")
+            core-icon-button(src="/images/icon_dark_m.png")
+              span sportsync
         core-menu(selected="{{selected}}")
           template(repeat="{{region in regionsAvailable}}")#regionMenuList
-            core-item {{region.name}}
+            core-item(on-tap="{{scrollTo}}") {{region.name}}
       div(tool) Browse By
       .content
-        div
-          core-animated-pages(transitions="cross-fade-all hero-transition", selected="{{selected}}")
-            .outer
-              template(repeat="{{region, i in regionsAvailable}}")#regionList
-                paper-shadow(z=1, hero?="{{selected === i}}").small
-                  .inner
-                    div(layout horizontal)
-                      core-icon-button(icon="chevron-right", on-tap="{{selectView}}")
-                      h3(flex self-center) {{region.name}}
-                      h3 {{selected}}
-                      h3 {{i}}
-                    div.summary
-                      span Players: 10, Games: 100
-                    div(cross-fade)
-                      p {{region._id}}
+        core-animated-pages(transitions="cross-fade-all hero-transition", selected="{{selected}}")
+          .background
+            template(repeat="{{region, i in regionsAvailable}}")#regionList
+              paper-shadow(id="{{region.name}}", z=1).small
+                .inner(class="{{selected==i ? '' : 'sm'}}")
+                  div(layout horizontal)
+                    core-icon-button(icon="{{selected == i ? 'expand-more' : 'chevron-right'}}", on-tap="{{selectView}}")
+                    h3(flex self-center) {{region.name}}
+                  div.summary
+                    span Players: 10, Games: 100
+                    p {{region._id}}
+                  div.children(hidden?="{{selected !== i}}")
+                    p Child!
 
 
 block scripts

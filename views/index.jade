@@ -15,7 +15,7 @@ block content
   core-header-panel(flex mode="seamed")
     core-toolbar(horizontal center-justified layout)
       .header-content(fullbleed horizontal layout)
-        a(href="/" flex) 
+        a(href="/index" flex) 
           core-icon(src="/images/icon_dark_m.png").big
           span sportsync
         .page-highlights(horizontal layout)
@@ -23,7 +23,7 @@ block content
           a(href="/#login") log in
     .content
       canvas#canvas.animated
-      paper-shadow.card.section(z=1)
+      paper-shadow.card.section(layout vertical z=1)
         a(href="/current-game") 
           paper-button Local Event
         a(href="/current-game") 
@@ -38,6 +38,5 @@ block scripts
 
   script.
     var anim = !{JSON.stringify(animate)};
-    console.log(anim);
   script(src="/javascripts/fonts.js")
   script(src="/javascripts/index.js")

@@ -4,6 +4,21 @@ addEventListener('template-bound', function(e) {
 
 	scope.selectView = function(e) {
 		var i = e.target.templateInstance.model.i;
-		this.selected = i;
+		if(this.selected != i) {
+			console.log(e.target);
+			this.selected = i;
+		}
+		else this.selected = -1;
+	}
+
+	scope.scrollTo = function(e) {
+		document.getElementById('scaffold').closeDrawer();
+		setTimeout(function() {
+			var elem = document.getElementById(e.target.innerHTML);
+		  var pos = $(elem).position().top
+		  $(document.getElementById('scaffold').scroller).animate({
+				scrollTop: pos
+			});
+		}, 500);
 	}
 })

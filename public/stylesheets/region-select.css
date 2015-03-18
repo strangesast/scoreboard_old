@@ -4,18 +4,31 @@
 	max-width: 500px;
 }
 
-.outer {
+.background {
 	position: relative;
 }
 
 .inner {
 	height: 200px;
 	overflow: hidden;
+	transition: width 0.5s, height 0.5s, transform 0.5s;
 }
 
 .inner > div > h3 {
 	margin: 0px;
 }
 
+.sm {
+	height: 100px;
+}
+
 .card-contents {
+}
+
+.view {
+	position: absolute;
+	left: 0;
+	top: 0;
+	height: 100px;
+	width: 100%;
 }

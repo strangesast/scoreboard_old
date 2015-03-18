@@ -32,7 +32,7 @@ core-toolbar {
 .section {
 	margin: auto;
 	margin-top: 15px;
-	width: 200px;
+	max-width: 300px;
 	padding: 10px;
 }
 

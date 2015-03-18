@@ -17,10 +17,7 @@ var intro = intro || function(canvas, _anim) {
 		this.y = y;
 
 		this.cc = _charCode; // goal
-		console.log("var _anim: " + _anim);
 		this.cn = _anim ? 90 : _charCode;
-
-		console.log(_anim ? 90 : _charCode);
 
 		this.color = color;
 
@@ -105,7 +102,6 @@ var ii;
 // var sent with page.  if true, run animation
 var anim = anim || false;
 $(document).ready(function() {
-	console.log("first var anim: " + anim);
 	ii = intro(document.getElementById('canvas'), anim);
 });
 
