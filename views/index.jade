@@ -22,16 +22,22 @@ block content
           a(href="/#features") features
           a(href="/#login") log in
     .content
-      canvas#canvas
+      canvas#canvas.animated
       paper-shadow.card.section(z=1)
         a(href="/current-game") 
           paper-button Local Event
         a(href="/current-game") 
           paper-button Demo
+        a(href="/region") 
+          paper-button Regions
+
 
 
 
 block scripts
 
+  script.
+    var anim = !{JSON.stringify(animate)};
+    console.log(anim);
   script(src="/javascripts/fonts.js")
   script(src="/javascripts/index.js")

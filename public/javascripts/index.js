@@ -1,4 +1,4 @@
-var intro = intro || function(canvas) {
+var intro = intro || function(canvas, _anim) {
 	var ww = window.innerWidth;
 	var wh = window.innerHeight;
 	var chars = [];
@@ -17,7 +17,10 @@ var intro = intro || function(canvas) {
 		this.y = y;
 
 		this.cc = _charCode; // goal
-		this.cn = 90;
+		console.log("var _anim: " + _anim);
+		this.cn = _anim ? 90 : _charCode;
+
+		console.log(_anim ? 90 : _charCode);
 
 		this.color = color;
 
@@ -53,7 +56,7 @@ var intro = intro || function(canvas) {
 	}
 
 	var j = 0;
-	var anim = setInterval(function() {
+	var animLoop = setInterval(function() {
 		br = true;
 		for(var i=0; i<chars.length; i++) {
 		  if(chars[i].cn < chars[i].cc) {
@@ -70,7 +73,7 @@ var intro = intro || function(canvas) {
 			}
 		}
 		if(br) {
-			clearInterval(anim); 
+			clearInterval(animLoop); 
 			$('body').css("background-color", "white");
 		}
 	}, 80);
@@ -97,8 +100,12 @@ var intro = intro || function(canvas) {
 
 
 var ii;
+
+// var sent with page.  if true, run animation
+var anim = anim || false;
 $(document).ready(function() {
-	ii = intro(document.getElementById('canvas'));
+	console.log("first var anim: " + anim);
+	ii = intro(document.getElementById('canvas'), anim);
 });
 
 $(window).resize(function() {
@@ -106,11 +113,4 @@ $(window).resize(function() {
 	var jj = setTimeout(function() {
 		ii.redraw();
 	}, 200);
-});
-
-
-$('.section').hover(function() {
-	this.setZ(1);
-}, function() {
-	this.setZ(0);
 });
