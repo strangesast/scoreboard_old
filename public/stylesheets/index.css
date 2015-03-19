@@ -8,7 +8,11 @@ core-header-panel {
 }
 
 core-toolbar {
-	background-color: rgba(0, 0, 0, 0);
+	background: #E8E8E8;
+}
+
+core-toolbar > a {
+  color: #00274D;
 }
 
 .header-content {

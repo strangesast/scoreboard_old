@@ -7,20 +7,17 @@ block links
   link(rel="import", href="/components/paper-button/paper-button.html")
   link(rel="import", href="/components/paper-shadow/paper-shadow.html")
   link(rel="import", href="/components/core-icon/core-icon.html")
+  link(rel="import", href="/components/core-icon-button/core-icon-button.html")
 
   link(rel="stylesheet", href="/stylesheets/style.css")
   link(rel="stylesheet", href="/stylesheets/index.css")
 
 block content
   core-header-panel(flex mode="seamed")
-    core-toolbar(horizontal center-justified layout)
-      .header-content(fullbleed horizontal layout)
-        a(href="/index" flex) 
-          core-icon(src="/images/icon_dark_m.png").big
+    core-toolbar(horizontal layout)
+      a(href="/index")
+        core-icon-button(src="/images/icon_light.png")
           span sportsync
-        .page-highlights(horizontal layout)
-          a(href="/#features") features
-          a(href="/#login") log in
     .content
       canvas#canvas.animated
       paper-shadow.card.section(layout vertical z=1)

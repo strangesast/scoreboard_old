@@ -63,16 +63,16 @@ var intro = intro || function(canvas, _anim) {
 		    chars[i].draw();
 				br = false;
 	    } else {
-				ctx.fillStyle = "white";
+				ctx.fillStyle = background;
 			  ctx.fillRect(chars[i].x-1, chars[i].y-8, chars[i].ps*5+2, chars[i].ps*8+16);
-				chars[i].color = "black";
+				chars[i].color = foreground;
 		    chars[i].draw();
 			}
 		}
 		if(br) {
 			clearInterval(animLoop); 
 			window.history.replaceState({}, "index", "/index");
-			$('body').css("background-color", "white");
+			$('body').css("background-color", background);
 		}
 	}, 80);
 	return {
@@ -98,6 +98,8 @@ var intro = intro || function(canvas, _anim) {
 
 
 var ii;
+var foreground = "#00274D";
+var background = "#E8E8E8";
 
 // var sent with page.  if true, run animation
 var anim = anim || false;
