@@ -12,6 +12,7 @@ addEventListener('template-bound', function(e) {
 	}
 
 	scope.scrollTo = function(e) {
+    document.querySelector('#pages').selected = 0;
 		document.getElementById('scaffold').closeDrawer();
 		setTimeout(function() {
 			var elem = document.getElementById(e.target.innerHTML);
@@ -21,4 +22,18 @@ addEventListener('template-bound', function(e) {
 			});
 		}, 500);
 	}
+
+  scope.maxView = function(e) {
+		var i = e.target.templateInstance.model.i;
+    this.$.pages.selected = i+1;
+  }
+
+  document.querySelector('core-ajax').addEventListener('core-response', function(e) {
+    console.log('event');
+    console.log(e);
+  });
+
 })
+
+
+

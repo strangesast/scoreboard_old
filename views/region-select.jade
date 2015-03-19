@@ -6,10 +6,13 @@ block links
   link(rel="import", href="/components/core-icon-button/core-icon-button.html")
   link(rel="import", href="/components/core-scaffold/core-scaffold.html")
   link(rel="import", href="/components/paper-shadow/paper-shadow.html")
-
+  link(rel="import", href="/components/paper-spinner/paper-spinner.html")
+  link(rel="import", href="/components/paper-button/paper-button.html")
   link(rel="import", href="/components/core-toolbar/core-toolbar.html")
   link(rel="import", href="/components/core-icon/core-icon.html")
   link(rel="import", href="/components/core-item/core-item.html")
+  link(rel="import", href="/components/paper-item/paper-item.html")
+  link(rel="import", href="/components/paper-toast/paper-toast.html")
   link(rel="import", href="/components/core-menu/core-menu.html")
   link(rel="import", href="/components/core-dropdown/core-dropdown.html")
   link(rel="import", href="/components/core-animated-pages/core-animated-pages.html")
@@ -20,7 +23,7 @@ block links
 
 block content
   template(is="auto-binding")#t
-    core-ajax(auto, url="/api", response="{{regionsAvailable}}", handleAs="json", method="GET")#getRegions
+    core-ajax(auto, loading="{{loading}}", url="/api", response="{{regionsAvailable}}", handleAs="json", method="GET")#getRegions
     core-scaffold#scaffold
       core-header-panel(navigation flex mode="seamed")
         core-toolbar
@@ -29,22 +32,30 @@ block content
               span sportsync
         core-menu(selected="{{selected}}")
           template(repeat="{{region in regionsAvailable}}")#regionMenuList
-            core-item(on-tap="{{scrollTo}}") {{region.name}}
+            paper-item(on-tap="{{scrollTo}}") {{region.name}}
       div(tool) Browse By
       .content
-        core-animated-pages(transitions="cross-fade-all hero-transition", selected="{{selected}}")
-          .background
+        div(layout center-justified horizontal center).loadingItem
+          paper-spinner(active?="{{loading}}")
+          paper-toast(text="{{alert-text}}")#alert
+        core-animated-pages(flex transitions="cross-fade-all hero-transition", selected="0")#pages
+          section(cross-fade)
             template(repeat="{{region, i in regionsAvailable}}")#regionList
-              paper-shadow(id="{{region.name}}", z=1).small
-                .inner(class="{{selected==i ? '' : 'sm'}}")
-                  div(layout horizontal)
-                    core-icon-button(icon="{{selected == i ? 'expand-more' : 'chevron-right'}}", on-tap="{{selectView}}")
-                    h3(flex self-center) {{region.name}}
-                  div.summary
-                    span Players: 10, Games: 100
-                    p {{region._id}}
-                  div.children(hidden?="{{selected !== i}}")
-                    p Child!
+              div
+                paper-shadow(id="{{region.name}}", z=1, hero-id="item-{{i}}", hero?="{{$.pages.selected === i+1}}").small.outer
+                  .inner(class="{{selected==i ? '' : 'sm'}}")
+                    div(layout horizontal)
+                      core-icon-button(icon="{{selected == i ? 'expand-more' : 'chevron-right'}}", on-tap="{{selectView}}")
+                      h3(flex self-center) {{region.name}}
+                    div.summary
+                      span Players: 10, Games: 100
+                      p {{region._id}}
+                    div.children(hidden?="{{selected !== i}}")
+                      paper-button(on-tap="{{maxView}}") max!
+          template(repeat="{{region, i in regionsAvailable}}")
+            section(vertical layout)
+              div(flex vertical center center-justified layout hero-id="item-{{i}}" hero?="{{$.pages.selected === i+1}}").view.outer
+                span(cross-fade) LARGE
 
 
 block scripts

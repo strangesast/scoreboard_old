@@ -8,6 +8,11 @@
 	position: relative;
 }
 
+.outer {
+  background: brown;
+
+}
+
 .inner {
 	height: 200px;
 	overflow: hidden;
@@ -29,6 +34,17 @@
 	position: absolute;
 	left: 0;
 	top: 0;
-	height: 100px;
+	height: 600px;
 	width: 100%;
+}
+
+.loadingItem {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  height: 100%;
+  width: 100%;
+}
+
+.loadingSection .notactive {
 }

@@ -21,7 +21,10 @@
     "core-icon-button": "Polymer/core-icon-button#~0.5.5",
     "core-collapse": "Polymer/core-collapse#~0.5.5",
     "core-animated-pages": "Polymer/core-animated-pages#~0.5.5",
-    "core-dropdown": "Polymer/core-dropdown#~0.5.5"
+    "core-dropdown": "Polymer/core-dropdown#~0.5.5",
+    "paper-spinner": "Polymer/paper-spinner#~0.5.5",
+    "paper-toast": "Polymer/paper-toast#~0.5.5",
+    "paper-item": "Polymer/paper-item#~0.5.5"
   },
   "resolutions": {
     "polymer": "~0.5.4",
