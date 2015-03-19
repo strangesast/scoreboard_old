@@ -62,3 +62,9 @@ core-scaffold::shadow core-header-panel {
   height: 100px;
   width: 100%;
 }
+
+.refresh {
+  padding: 10px;
+  margin-top: 10px;
+  margin-bottom: 25px;
+}

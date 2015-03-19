@@ -28,6 +28,14 @@ addEventListener('template-bound', function(e) {
     this.$.pages.selected = i+1;
   }
 
+  scope.back = function(e) {
+    this.$.pages.selected = 0;
+  }
+
+  scope.refresh = function(e) {
+    document.querySelector('#getRegions').go()
+  }
+
   document.querySelector('core-ajax').addEventListener('core-response', function(e) {
     console.log('event');
     console.log(e);

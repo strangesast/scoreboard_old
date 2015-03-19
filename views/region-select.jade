@@ -33,10 +33,12 @@ block content
         core-menu(selected="{{selected}}")
           template(repeat="{{region in regionsAvailable}}")#regionMenuList
             paper-item(on-tap="{{scrollTo}}") {{region.name}}
-      div(tool) Browse By
+      div(tool)
+        core-icon-button(icon="menu", on-tap="{{back}}")
+        span(flex) Browse By
       .content
         div(layout center-justified horizontal center).loadingItem
-          paper-spinner(active?="{{loading}}")
+          paper-spinner(active?="{{loading || !regionsAvailable}}")
           paper-toast(text="{{alert-text}}")#alert
         core-animated-pages(flex transitions="cross-fade-all hero-transition", selected="0")#pages
           section(cross-fade)
@@ -52,6 +54,10 @@ block content
                       p {{region._id}}
                     div.children(hidden?="{{selected !== i}}")
                       paper-button(on-tap="{{maxView}}") max!
+            div(horizontal center-justified layout).refresh
+              paper-button(raised on-tap="{{refresh}}")
+                span refresh
+
           template(repeat="{{region, i in regionsAvailable}}")
             section(vertical layout)
               div(flex vertical center center-justified layout hero-id="item-{{i}}" hero?="{{$.pages.selected === i+1}}").view.outer
