@@ -1,16 +1,22 @@
+html, body {
+  background-color: grey;
+}
+
+core-scaffold::shadow core-toolbar {
+  background:#00274D; /* right header color */
+  color: #E8E8E8;  /* right header text color */
+}
+
+core-scaffold::shadow core-header-panel {
+  color: #00274D; /* bottom right text color */
+  background: #F0F0F0; /* bottom right background color */
+}
+
 .small {
 	margin: 15px;
 	padding: 8px;
 	max-width: 500px;
-}
-
-.background {
-	position: relative;
-}
-
-.outer {
-  background: brown;
-
+  background: #E8E8E8;
 }
 
 .inner {
@@ -24,20 +30,24 @@
 }
 
 .sm {
-	height: 100px;
+	height: 100px; /* height before selection */
 }
 
-.card-contents {
-}
-
+/* view when full mode */
 .view {
-	position: absolute;
-	left: 0;
-	top: 0;
-	height: 600px;
-	width: 100%;
+ 	position: fixed;
+ 	height: calc(100% - 60px);
+  width: 100%;
+  background: #E8E8E8;
 }
 
+@media (min-width: 640px) {
+  .view {
+    width: calc(100% - 256px);
+  }
+}
+
+/* loading spinner */
 .loadingItem {
   position: absolute;
   top: 0px;
@@ -46,5 +56,9 @@
   width: 100%;
 }
 
-.loadingSection .notactive {
+#test {
+  position: fixed;
+  background-color: black;
+  height: 100px;
+  width: 100%;
 }
