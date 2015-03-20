@@ -15,6 +15,7 @@ addEventListener('template-bound', function(e) {
 
 	scope.scrollTo = function(e) {
     document.querySelector('#pages').selected = 0;
+    scope.activeRegionName = null;
 		document.getElementById('scaffold').closeDrawer();
 		setTimeout(function() {
 			var elem = document.getElementById(e.target.innerHTML);
@@ -22,7 +23,7 @@ addEventListener('template-bound', function(e) {
 		  $(document.getElementById('scaffold').scroller).animate({
 				scrollTop: pos
 			});
-		}, 500);
+		}, 250);
 	}
 
   scope.maxView = function(e) {

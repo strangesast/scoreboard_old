@@ -22,7 +22,7 @@ core-scaffold::shadow core-header-panel {
 .inner {
 	height: 200px;
 	overflow: hidden;
-	transition: width 0.5s, height 0.5s, transform 0.5s;
+	transition: width 0.25s, height 0.25s, transform 0.25s;
 }
 
 .inner > div > h3 {
