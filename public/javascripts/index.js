@@ -64,7 +64,7 @@ var intro = intro || function(canvas, _anim) {
 				br = false;
 	    } else {
 				ctx.fillStyle = background;
-			  ctx.fillRect(chars[i].x-1, chars[i].y-8, chars[i].ps*5+2, chars[i].ps*8+16);
+			  ctx.clearRect(chars[i].x-1, chars[i].y-8, chars[i].ps*5+2, chars[i].ps*8+16);
 				chars[i].color = foreground;
 		    chars[i].draw();
 			}
