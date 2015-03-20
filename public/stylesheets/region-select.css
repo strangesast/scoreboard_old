@@ -15,7 +15,6 @@ core-scaffold::shadow core-header-panel {
 .small {
 	margin: 15px;
 	padding: 8px;
-	max-width: 500px;
   background: #E8E8E8;
 }
 

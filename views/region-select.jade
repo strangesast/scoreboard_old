@@ -31,9 +31,12 @@ block content
           a(href="/index")
             core-icon-button(src="/images/icon_dark_m.png")
               span sportsync
-        core-menu(selected="{{selected}}")
+        core-menu(vertical justified layout selected="{{selected}}")
           template(repeat="{{region in regionsAvailable}}")#regionMenuList
             paper-item(on-tap="{{scrollTo}}") {{region.name}}
+          paper-button(raised on-tap="{{refresh}}")
+            span refresh
+
       div(tool)
         core-icon-button(icon="{{ {'arrow-back' : $.pages.selected !== 0, 'view-stream' : arranged && $.pages.selected === 0, 'view-module' : !arranged && $.pages.selected === 0} | tokenList }}", on-tap="{{back}}")
         span(flex) {{ activeRegionName || 'Regions' }}
@@ -45,7 +48,7 @@ block content
           div(horizontal?="{{arranged}}" layout?="{{arranged}}" cross-fade wrap?="{{arranged}}")
             template(repeat="{{region, i in regionsAvailable}}")#regionList
               div(style="{{arranged ? 'display: inline-block' : ''}}" self-center)
-                paper-shadow(id="{{region.name}}", z=1, hero-id="item-{{i}}", hero?="{{$.pages.selected === i+1}}").small.outer
+                paper-shadow(id="{{region.name}}", z=1, hero-id="{{region._id}}", hero?="{{$.pages.selected === i+1}}").small.outer
                   .inner(class="{{selected==i ? '' : 'sm'}}")
                     div(layout horizontal)
                       core-icon-button(icon="{{selected == i ? 'expand-more' : 'chevron-right'}}", on-tap="{{selectView}}")
@@ -55,14 +58,11 @@ block content
                       p {{region._id}}
                     div.children(hidden?="{{selected !== i}}")
                       paper-button(on-tap="{{maxView}}") max!
-            div(horizontal center-justified layout).refresh
-              paper-button(raised on-tap="{{refresh}}")
-                span refresh
 
           template(repeat="{{region, i in regionsAvailable}}")
             section(vertical layout)
-              div(flex vertical center center-justified layout hero-id="item-{{i}}" hero?="{{$.pages.selected === i+1}}").view.outer
-                span(cross-fade) LARGE
+              div(flex vertical center center-justified layout hero-id="{{region._id}}" hero?="{{$.pages.selected === i+1}}").view.outer
+                paper-spinner(active)
 
 
 block scripts
