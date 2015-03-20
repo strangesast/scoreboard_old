@@ -2,6 +2,8 @@ addEventListener('template-bound', function(e) {
 	var scope = e.target;
 	var regions = scope.regionsAvailable;
 
+  scope.arranged = true;
+
 	scope.selectView = function(e) {
 		var i = e.target.templateInstance.model.i;
 		if(this.selected != i) {
@@ -26,10 +28,18 @@ addEventListener('template-bound', function(e) {
   scope.maxView = function(e) {
 		var i = e.target.templateInstance.model.i;
     this.$.pages.selected = i+1;
+    scope.activeRegionName = e.target.templateInstance.model.region.name;
   }
 
   scope.back = function(e) {
-    this.$.pages.selected = 0;
+    if(this.$.pages.selected == 0) {
+      var bool = e.target.templateInstance.model.arranged;
+      e.target.templateInstance.model.arranged = !bool;
+
+    } else {
+      this.$.pages.selected = 0;
+      scope.activeRegionName = null;
+    }
   }
 
   scope.refresh = function(e) {
