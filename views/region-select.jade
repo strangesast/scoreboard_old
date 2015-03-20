@@ -6,6 +6,7 @@ block links
   link(rel="import", href="/components/core-icon-button/core-icon-button.html")
   link(rel="import", href="/components/core-scaffold/core-scaffold.html")
   link(rel="import", href="/components/paper-shadow/paper-shadow.html")
+  link(rel="import", href="/components/paper-input/paper-input.html")
   link(rel="import", href="/components/paper-spinner/paper-spinner.html")
   link(rel="import", href="/components/paper-button/paper-button.html")
   link(rel="import", href="/components/core-toolbar/core-toolbar.html")
@@ -14,6 +15,8 @@ block links
   link(rel="import", href="/components/paper-item/paper-item.html")
   link(rel="import", href="/components/paper-toast/paper-toast.html")
   link(rel="import", href="/components/core-menu/core-menu.html")
+  link(rel="import", href="/components/core-menu-button/core-menu-button.html")
+  link(rel="import", href="/components/paper-menu-button/paper-menu-button.html")
   link(rel="import", href="/components/core-dropdown/core-dropdown.html")
   link(rel="import", href="/components/core-animated-pages/core-animated-pages.html")
   link(rel="import", href="/components/core-header-panel/core-header-panel.html")
@@ -39,7 +42,7 @@ block content
 
       div(tool)
         core-icon-button(icon="{{ {'arrow-back' : $.pages.selected !== 0, 'view-stream' : arranged && $.pages.selected === 0, 'view-module' : !arranged && $.pages.selected === 0} | tokenList }}", on-tap="{{back}}")
-        span(flex) {{ activeRegionName || 'Regions' }}
+        span(flex) {{{ 'Back' : $.pages.selected !== 0, 'Region Overview' : $.pages.selected === 0 }| tokenList }}
       .content
         div(layout center-justified horizontal center).loadingItem
           paper-spinner(active?="{{loading || !regionsAvailable}}")
@@ -64,12 +67,58 @@ block content
               div(flex vertical layout hero-id="{{region._id}}" hero?="{{$.pages.selected === i+1}}").view
                 div(layout center-justified horizontal center).loadingItem
                   paper-spinner(active)
-                .maxContent
-                  h2 Description
-                  p Region description.
-                  h2 Child-Elements
-                  p element
+                div(layout horizontal flex)
+                  core-header-panel(mode="scroll" flex)
+                    core-toolbar
+                      span {{region.name}}
+                      span(flex)
+                      paper-menu-button
+                        core-icon-button(icon="menu")
+                        core-dropdown(layered halign="right").dropdown
+                          core-menu
+                            paper-item(on-tap="{{toggleLogin}}") Admin
+                            paper-item toast
+                            paper-item toast
+                            paper-item toast
+                    .maxcontent(fit)
+                      h2 Description
+                      p Region description.
+                      h2 Child Elements
+                      h3 Display Boards
+                      p board
+                      h3 Teams
+                      p element
+                      h3 History
+                      p element
+                      h3 Players
+                      p element
+                      p Space
+                      p Space
+                      p Space
+                      p Space
+                      p Space
+                      p Space
+                      p Space
+                      p Space
+                      p Space
+                      p Space
+                      p Space
+                      p Space
+                      p Space
+                      p Space
+                      p Space
+                      p Space
+                      p Space
+                      p Space
                 
+        core-overlay(backdrop="true")#adminLogin
+          paper-shadow(self-center vertical layout z=3).loginWindow
+            h2 Admin 
+            paper-input(floatinglabel label="username")
+            paper-input(floatinglabel label="password")
+            br
+            paper-button
+              span Login
 
 
 block scripts

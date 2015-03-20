@@ -68,6 +68,13 @@ core-scaffold::shadow core-header-panel {
   margin-bottom: 25px;
 }
 
-.maxContent {
-  padding: 10px;
+.maxcontent {
+  margin-left:20px;
+}
+
+.loginWindow {
+  margin: auto;
+  padding: 15px;
+  width: 280px;
+  background: #E8E8E8;
 }

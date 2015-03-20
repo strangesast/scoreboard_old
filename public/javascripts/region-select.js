@@ -47,12 +47,14 @@ addEventListener('template-bound', function(e) {
     document.querySelector('#getRegions').go()
   }
 
+
+  scope.toggleLogin = function(e) {
+    document.querySelector('#adminLogin').toggle();
+  }
+
   document.querySelector('core-ajax').addEventListener('core-response', function(e) {
     console.log('event');
     console.log(e);
   });
 
 })
-
-
-
