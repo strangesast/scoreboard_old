@@ -61,8 +61,15 @@ block content
 
           template(repeat="{{region, i in regionsAvailable}}")
             section(vertical layout)
-              div(flex vertical center center-justified layout hero-id="{{region._id}}" hero?="{{$.pages.selected === i+1}}").view.outer
-                paper-spinner(active)
+              div(flex vertical layout hero-id="{{region._id}}" hero?="{{$.pages.selected === i+1}}").view
+                div(layout center-justified horizontal center).loadingItem
+                  paper-spinner(active)
+                .maxContent
+                  h2 Description
+                  p Region description.
+                  h2 Child-Elements
+                  p element
+                
 
 
 block scripts

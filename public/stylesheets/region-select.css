@@ -67,3 +67,7 @@ core-scaffold::shadow core-header-panel {
   margin-top: 10px;
   margin-bottom: 25px;
 }
+
+.maxContent {
+  padding: 10px;
+}

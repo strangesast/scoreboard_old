@@ -2,7 +2,7 @@ addEventListener('template-bound', function(e) {
 	var scope = e.target;
 	var regions = scope.regionsAvailable;
 
-  scope.arranged = true;
+  scope.arranged = false;
 
 	scope.selectView = function(e) {
 		var i = e.target.templateInstance.model.i;
