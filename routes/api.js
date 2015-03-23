@@ -218,6 +218,23 @@ router.route('/')
 })
 .get(function(req, res, next) {
   next('route');
+
+// modify region attributes
+}).put(function(req, res, next) {
+	var body = req.body;
+  if('_id' in body) {
+    findById(body._id).then(function(docs) {
+      console.log(typeof docs);
+    });
+  } else if(body.type != "region" && !('region' in body)) {
+    var _err = new Error('must specify region');
+    _err.status = 400;
+    return next(_err);
+  }
+  console.log(body);
+  
+  next();
+
 }).all(function(req, res, next) {
   var _err = new Error('method not supported at ' + req.path);
 	_err.status = 400;

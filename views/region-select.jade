@@ -29,7 +29,7 @@ block content
   template(is="auto-binding")#t
     core-ajax(auto, loading="{{loading}}", url="/api", response="{{regionsAvailable}}", handleAs="json", method="GET")#getRegions
     core-scaffold(mode="seamed")#scaffold
-      core-header-panel(navigation flex mode="scroll")
+      core-header-panel(navigation flex mode="waterfall")
         core-toolbar
           a(href="/index")
             core-icon-button(src="/images/icon_dark_m.png")
@@ -117,7 +117,7 @@ block content
             h2 Admin 
             p Grants access to administrative actions
             paper-input(floatinglabel label="username")
-            paper-input(floatinglabel label="password")
+            paper-input(type="password" floatinglabel label="password")
             br
             paper-button
               span Login
