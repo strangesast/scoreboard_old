@@ -1,0 +1,13 @@
+p {
+  margin: 8px;
+}
+
+.item {
+	display: inline-block;
+  background: #e7e7e7;
+  padding: 16px;
+  margin: 8px;
+  border-radius: 3px;
+  box-sizing: border-box;
+  position: relative;
+}

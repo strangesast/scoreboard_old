@@ -1,0 +1,30 @@
+extends layout
+
+block links
+  link(rel="import", href="/components/paper-toast/paper-toast.html")
+  link(rel="import", href="/components/core-animated-pages/core-animated-pages.html")
+
+  link(rel="stylesheet", href="/stylesheets/message-queue.css")
+
+block content
+  template(is="auto-binding")
+    core-animated-pages(on-tap="{{reorder}}", selected="{{selected}}", on-core-animated-pages-transition-end="{{done}}", transitions="hero-transition")#messagelist
+    
+      section
+        template(repeat="{{messages0}}")
+          div(hero-id="item-{{h}}", hero).item
+            p {{v}}
+  
+      section
+        template(repeat="{{messages1}}")
+          div(hero-id="item-{{h}}", hero).item
+            p {{v}}
+    
+//  template(is="auto-binding")#messageList
+//    h3 Messages
+//    template(repeat="{{message, i in messages}}")
+//      paper-toast(opened, autoCloseDisabled, index="{{i}}", text="index {{i}}")
+
+
+block scripts
+  script(src="/javascripts/message-queue.js")
