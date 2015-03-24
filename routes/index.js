@@ -22,4 +22,9 @@ router.get('/region/:region?', function(req, res) {
 	console.log(req.params);
 	res.render('region-select');
 })
+
+router.get('/message-queue', function(req, res) {
+	res.render('message-queue');
+});
+
 module.exports = router;
