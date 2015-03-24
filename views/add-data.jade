@@ -1,11 +1,13 @@
 extends layout
 
 block links
-  link(rel="stylesheet", href="/stylesheets/style.css")
   link(rel="import", href="/components/paper-button/paper-button.html")
   link(rel="import", href="/components/paper-shadow/paper-shadow.html")
 
+  link(rel="stylesheet", href="/stylesheets/add-data.css")
 
 block content
-  paper-shadow.card(z=1)
+  h3 Add data
 
+block scripts
+  script(src="/javascripts/add-data.js")
