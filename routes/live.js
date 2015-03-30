@@ -10,7 +10,6 @@ var Promise = require('es6-promise').Promise;
 var WebSocketServer = require('ws').Server,
 	  wss = new WebSocketServer({port : 3030});
 
-console.log('toast');
 // "event" list is stored for an entire region.  adding to message queue
 // notified clients and client-servers of change as well as adding to actual
 // relevant objects in /api/
