@@ -11,11 +11,6 @@ var models = require('../models');
 var db;
 var listeners = {};
 
-models.events.on('region-added', function(doc) {
-	// stream to clients
-	console.log(doc);
-})
-
 // add connection to available connections or timeout
 // *****attach to mongoose schema, on changed listener*****
 function addSocketConnection(url, port) {
@@ -46,10 +41,6 @@ function addSocketConnection(url, port) {
 		if(socket !== null) listeners[socket.name] = socket;
 		return true;
 	});
-}
-
-function notify(docs) {
-	console.log(docs);
 }
 
 function isArray(_obj) {
@@ -95,12 +86,13 @@ router.all('/', function(req, res, next) {
 
 router.route('/:firstType/:firstValue?')
 .get(function(req, res, next) {
-	var Model = models.mapping[req.params.firstType];
+	var Model = models.Models[req.params.firstType];
 	var query = {};
 	var first_value = req.params.firstValue;
 	var restrict_to = 'name _id';
 
 	if(first_value !== undefined) {
+	  restrict_to = ''; // restrict to different values
 	  if(mongoose.Types.ObjectId.isValid(first_value)) {
 			query._id = first_value;
 		} else {
@@ -113,17 +105,22 @@ router.route('/:firstType/:firstValue?')
   });
 })
 .post(function(req, res, next) {
-	var Model = models.mapping[req.params.firstType];
+	var Model = models.Models[req.params.firstType];
 	var body = req.body;
+
 
   // if passed as array, add each
 	if(isArray(body)) {
 		var promiseArray = [];
 		for(var i in body) {
 			var doc = body[i];
+
+     	// need to add user validation, until then default user
+     	doc.lastModifiedBy = "551b2c385abb2a2e14f29c6c";
+
 			promiseArray.push(new Promise(function(resolve, reject) {
-				Model.create(doc, function(err, region) {
-		  		resolve(err ? err : region);
+				Model.create(doc, function(err, _doc) {
+		  		resolve(err ? err : _doc);
 		  	});
 			}));
 		}
@@ -133,19 +130,23 @@ router.route('/:firstType/:firstValue?')
 
 	// else add as single document
 	} else {
-		Model.create(body, function(err, region) {
+
+  	// need to add user validation, until then default user
+  	body.lastModifiedBy = "551b2c385abb2a2e14f29c6c";
+		Model.create(body, function(err, _doc) {
 	    if(err) return next(new Error(err));
-			res.json(region);
+			res.json(_doc);
 		});
 	}
 })
 .put(function(req, res, next) {
-	var Model = models.mapping[req.params.firstType];
+	// need to add update functionality
+	var Model = models.Models[req.params.firstType];
 	res.json(req.method);
 
 })
 .delete(function(req, res, next) {
-	var Model = models.mapping[req.params.firstType];
+	var Model = models.Models[req.params.firstType];
 	var first_value = req.params.firstValue;
 	if(first_value !== undefined && mongoose.Types.ObjectId.isValid(first_value)) {
 	  Model.remove({ _id: first_value}, function(err) {
@@ -154,6 +155,7 @@ router.route('/:firstType/:firstValue?')
 		});
 	} else {
 		// this is rather dangerous
+		// also, should drop collection - much faster
 		Model.remove({}, function(err) {
 			if(err) return next(new Error(err));
 			res.json("ok");
@@ -161,7 +163,7 @@ router.route('/:firstType/:firstValue?')
 	}
 })
 .all(function(req, res, next) {
-	var Model = models.mapping[req.params.firstType];
+	var Model = models.Models[req.params.firstType];
 	res.json(req.method);
 });
 

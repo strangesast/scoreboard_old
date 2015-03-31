@@ -3,23 +3,20 @@ var mongoose = require('mongoose')
 		, Schema = mongoose.Schema;
 var EventEmitter = require('events').EventEmitter;
 
-// schemas and models
+// so events can be accessed in other files
+models.events = new EventEmitter();
+
+// schemas
+var schemas = {};
 
 // Region: collection of players, boards, teams, etc
-var regionSchema = new Schema({
+schemas['Region'] = new Schema({
 	name : {type: String, required: true},
 	createdAt: { type: Date, default: Date.now }
 });
 
-regionSchema.post('save', function(docs) {
-	models.events.emit('region-added', docs);
-});
-
-models.Region = mongoose.model('Region', regionSchema);
-
-
 // Player: competitor basic information, with reference to history document
-var playerSchema = new Schema({
+schemas['Player'] = new Schema({
 	name:     {
 		         first : String,
 		         middle: String,
@@ -29,77 +26,97 @@ var playerSchema = new Schema({
 	team:      { type: Schema.Types.ObjectId, ref: 'Team' },
 	region:    { type: Schema.Types.ObjectId, ref: 'Region', required: true},
 	createdAt: { type: Date, default: Date.now },
-	updatedAt: { type: Date, default: Date.now },
   history:   { type: Schema.Types.ObjectId, ref: 'History' }
 });
 
-models.Player = mongoose.model('Player', playerSchema);
-
-
 // Team: collection of players, reference to history document
-var teamSchema = new Schema({
+schemas['Team'] = new Schema({
 	name:     { type: String, required: true },
+	createdAt: { type: Date, default: Date.now },
   members: [{ type: Schema.Types.ObjectId, ref: 'Player' }],
 });
 
-models.Team = mongoose.model('Team', teamSchema);
-
-
 // Game: collection of actions, meta information includes partipating teams / players, live status, etc
-var gameSchema = new Schema({
+schemas['Game'] = new Schema({
 	name:        { type: String, required: true },
 	members:     [Schema.Types.Mixed],
   startTime:   { type: Date },
 	history:     { type: Schema.Types.ObjectId, ref: 'History'},
+	createdAt: { type: Date, default: Date.now },
 	liveHistory: { type: Schema.Types.ObjectId, ref: 'LiveHistory'}
 });
-
-models.Game = mongoose.model('Game', gameSchema);
-
-
-// Board: address and infomation about a displayServer instance
-var boardSchema = new Schema({
-	hostname: { type: String, required: true },
-	port:     { type: Number, required: true },
-	follows:  [{ type: Schema.Types.ObjectId }] // what object(s) is it displaying
-});
-
-models.Board = mongoose.model('Board', boardSchema);
-
-
-// Action: an event associated with Player or Game
-var actionSchema = new Schema({
-	parents: { type: [Schema.Types.ObjectId], required: true }, // who or what is the action attributed to
-	action:  { type: String, required: true }, // what action is it
-  time:    { type: Date, required: true }
-});
-
-actionSchema.post('save', function(doc) {
-	console.log("doc has been added");
-});
-
-models.Action = mongoose.model('Action', actionSchema);
-
-var liveactionSchema = new Schema({
-	parents: { type: [Schema.Types.ObjectId], required: true }, // who or what is the action attributed to
-	action:  { type: String, required: true }, // what action is it
-  time:    { type: Date, required: true }
-}, { capped: 2048 });
-
-models.LiveAction = mongoose.model('LiveAction', liveactionSchema);
-
 
 // History: a list of actions tied to a player or game, may contain meta information
 // LiveHistory: a list of all actions tied to a game or region, "capped"
 
+//actionSchema.post('save', function(doc) {
+//	// do this or use tailable cursor
+//	console.log(doc);
+//});
 
-// for mapping url to model defs
-models.mapping = {
-	'region' : models.Region,
-	'player' : models.Player,
-	'game'   : models.Game
+
+// stuff for all (most) schemas
+for(var schema in schemas) {
+	schemas[schema].add({ 
+		lastModifiedBy: { type: Schema.Types.ObjectId, ref: 'User', required: true},
+		updatedAt: { type: Date, default: Date.now }
+  })
+
+  schemas[schema].post('save', function(doc) {
+		// emit creation event e.g. 'region-added'
+  	//models.events.emit(schema.toLowerCase() + '-added', doc);
+    var action = new models.Models.action({
+    	parent: doc._id,
+    	action: 'add',
+    	time: Date.now(),
+			by: doc.lastModifiedBy
+    });
+  	action.save();
+  });
 }
 
-models.events = new EventEmitter();
+
+// Action: an event associated with another object
+schemas['Action'] = new Schema({
+	parent:       { type: Schema.Types.ObjectId, required: true }, // in what context is the action occuring
+	action:       { type: String, required: true }, // what action is it
+	value:        { type: Number },
+  time:         { type: Date, required: true },
+	attributedTo: { type: Schema.Types.ObjectId, ref: 'User' } // who is performing action
+}, { capped: 1048576, tailable: true}); // may need to be larger
+
+// User: a user with varying privledges
+schemas['User'] = new Schema({
+	name:   { type: String, required: true },
+	level:  Number
+});
+
+// Connection: a websocket or tcp connection to scoreboard (e.g. displayServer)
+schemas['Connection'] = new Schema({
+	hostname: { type: String, required: true },
+	port:     { type: Number, required: true },
+	follows:  [{ type: Schema.Types.ObjectId }], // what object(s) is it following
+	createdAt: { type: Date, default: Date.now },
+	type:     { type: String, required: true} // either "tcp" or "ws"
+});
+
+
+
+// schema middleware
+//schemas['Region'].virtual('test').set(function(test) {
+//	console.log(this); //test = test;
+//	console.log('test: %s', test);
+//})
+
+
+// models
+
+var Models = {};
+for(var schema in schemas) {
+	Models[schema.toLowerCase()] = mongoose.model(schema, schemas[schema]);
+}
+
+models.Models = Models;
+
 
 module.exports = models;
