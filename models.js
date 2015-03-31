@@ -83,4 +83,12 @@ models.LiveAction = mongoose.model('LiveAction', liveactionSchema);
 // History: a list of actions tied to a player or game, may contain meta information
 // LiveHistory: a list of all actions tied to a game or region, "capped"
 
+
+// for mapping url to model defs
+models.mapping = {
+	'region' : models.Region,
+	'player' : models.Player,
+	'game'   : models.Game
+}
+
 module.exports = models;

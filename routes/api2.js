@@ -43,6 +43,11 @@ function addSocketConnection(url, port) {
 	});
 }
 
+function isArray(_obj) {
+	for(var i in _obj) if(isNaN(i)) return false;
+	return true;
+}
+
 router.use(function(req, res, next) {
 	// verify that connection to the database is valid/available
 	var db = db || mongoose.connection;
@@ -79,50 +84,75 @@ router.all('/', function(req, res, next) {
 //	});
 //});
 
-router.route('/region/:regionId?')
+router.route('/:firstType/:firstValue?')
 .get(function(req, res, next) {
+	var Model = models.mapping[req.params.firstType];
 	var query = {};
-	var region_identifier = req.params.regionId;
-	// is a regionId passed
-	if(region_identifier !== undefined) {
-	  if(mongoose.Types.ObjectId.isValid(region_identifier)) {
-			query._id = region_identifier;
+	var first_value = req.params.firstValue;
+	var restrict_to = 'name _id';
+
+	if(first_value !== undefined) {
+	  if(mongoose.Types.ObjectId.isValid(first_value)) {
+			query._id = first_value;
 		} else {
-			query.name = region_identifier;
+			query.name = first_value;
 		}
 	}
-  models.Region.find(query).select('name _id').exec(function(err, docs) {
-    	if(err) return next(new Error(err));
-    	res.json(docs);
+  Model.find(query).select(restrict_to).exec(function(err, docs) {
+  	if(err) return next(new Error(err));
+  	res.json(docs);
   });
-
 })
 .post(function(req, res, next) {
+	var Model = models.mapping[req.params.firstType];
 	var body = req.body;
-	models.Region.create(body, function(err, region) {
-	  res.json([err, region]);
-	})
+
+  // if passed as array, add each
+	if(isArray(body)) {
+		var promiseArray = [];
+		for(var i in body) {
+			var doc = body[i];
+			promiseArray.push(new Promise(function(resolve, reject) {
+				Model.create(doc, function(err, region) {
+		  		resolve(err ? err : region);
+		  	});
+			}));
+		}
+		Promise.all(promiseArray).then(function(vals) {
+		  res.json(vals);
+		});
+
+	// else add as single document
+	} else {
+		Model.create(body, function(err, region) {
+	    if(err) return next(new Error(err));
+			res.json(region);
+		});
+	}
 })
 .put(function(req, res, next) {
+	var Model = models.mapping[req.params.firstType];
 	res.json(req.method);
 
 })
 .delete(function(req, res, next) {
-	var region_identifier = req.params.regionId;
-	if(region_identifier !== undefined && mongoose.Types.ObjectId.isValid(region_identifier)) {
-	  models.Region.remove({ _id: region_identifier}, function(err) {
+	var Model = models.mapping[req.params.firstType];
+	var first_value = req.params.firstValue;
+	if(first_value !== undefined && mongoose.Types.ObjectId.isValid(first_value)) {
+	  Model.remove({ _id: first_value}, function(err) {
 			if(err) return next(new Error(err));
 			res.json("ok");
 		});
 	} else {
 		// this is rather dangerous
-		models.Region.remove({}, function(err) {
+		Model.remove({}, function(err) {
 			if(err) return next(new Error(err));
 			res.json("ok");
 		});
 	}
 })
 .all(function(req, res, next) {
+	var Model = models.mapping[req.params.firstType];
 	res.json(req.method);
 });
 
