@@ -3,30 +3,43 @@ var net = require('net');
 var router = express.Router();
 var mongoose = require('mongoose')
     , Schema = mongoose.Schema;
-var config = require('../config');
-var mongoUrl = config.mongoUrl;
+var config = require('../config')
+    , mongoUrl = config.mongoUrl;
 var Promise = require('es6-promise').Promise;
+var models = require('../models');
 
 var db;
-var tcpListeners = [];
+var listeners = {};
 
-var regionSchema = Schema({
-	name : String
-});
-
-var Region = mongoose.model('Region', regionSchema);
-
+// add connection to available connections or timeout
+// *****attach to mongoose schema, on changed listener*****
 function addSocketConnection(url, port) {
-	return new Promise(function(resolve, reject) {
-		var con = net.createConnection(port, url);
-		con.on('error', function(err) {
-			console.log('err');
-			console.log(err);
+	var name = url + ':' + port;
+	if(name in listeners) return Promise.resolve(null);
+	var test = new Promise(function(resolve, reject) {
+		var sock = net.connect(port, url);
+		sock.name = name;
+	  sock.once('connect', function(e) {
+			sock.write('success');
+		  resolve(sock);
+		});
+		sock.on('error', function(e) {
+			resolve(null);
+			sock.destroy();
+		});
+		sock.on('close', function(e) {
+			var index = listeners.indexOf(sock.name);
+			if(index > -1) listeners.splice(index, 1);
 		})
-		con.on('data', function(data) {
-			console.log(data);
-		})
-		resolve(url + ':' + port);
+	});
+
+	// timeout after 1000ms if connection not established
+	var timeout = new Promise(function(resolve, reject) {
+		setTimeout(resolve, 1000, null);
+	})
+	return Promise.race([test, timeout]).then(function(socket) {
+		if(socket !== null) listeners[socket.name] = socket;
+		return true;
 	});
 }
 
@@ -53,29 +66,34 @@ router.all('/', function(req, res, next) {
 router.get('*', function(req, res, next) {
 	// return details of new connection or, if invalid, do next()
 	var port = req.query.port;
-	var ip = req.query.address || req.ip;
+	var ip = req.query.address || // get specified ip
+	     req.headers['x-forwarded-for'] ||  // get request ip
+	     req.connection.remoteAddress || 
+	     req.socket.remoteAddress ||
+	     req.connection.socket.remoteAddress;
+	if(port === undefined || !net.isIP(ip)) return next();
 	addSocketConnection(ip, port).then(function(result) {
 		res.json(result)
 	}).catch(function(err) {
 		next(new Error(err));
 	});
-
 });
 
 router.route('/region')
 .get(function(req, res, next) {
+	res.json(req.method);
 })
 .post(function(req, res, next) {
-	res.json('toast');
+	res.json(req.method);
 	
 })
 .put(function(req, res, next) {
-	res.json('toast');
+	res.json(req.method);
 
 })
 .all(function(req, res, next) {
-	res.json('toast');
-	
+	res.json(req.method);
+
 });
 
 
