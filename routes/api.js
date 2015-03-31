@@ -1,406 +1,168 @@
 var express = require('express');
+var net = require('net');
 var router = express.Router();
-var mongodb = require('mongodb');
-var ObjectID = require('mongodb').ObjectID;
-var mongoClient = mongodb.MongoClient;
-var config = require('../config');
-var mongoUrl = config.mongoUrl;
-var url = require('url');
+var mongoose = require('mongoose')
+    , Schema = mongoose.Schema;
+var config = require('../config')
+    , mongoUrl = config.mongoUrl;
 var Promise = require('es6-promise').Promise;
+var models = require('../models');
 
+var db;
+var listeners = {};
 
-// all 'api' calls use db 'scoreboard-data' (live events use 'scoreboard-live')
+models.events.on('region-added', function(doc) {
+	// stream to clients
+	console.log(doc);
+})
 
-var Db; // db object to make all calls through
-var connecting = false; // prevent issues from two quick calls to getDbConnection
-
-function getDbConnection() {
-	// return connection promise
-	return new Promise(function(resolve, reject) {
-		var wait = connecting ? 1000 : 0;
-		connecting = true;
-		setTimeout(function() {
-		  if(Db === undefined) {
-		    mongoClient.connect(mongoUrl, function(err, db) {
-		      if(err) {
-		      	console.log('failed to connect to ' + mongoUrl);
-						console.log(err);
-		      	reject(err);
-		      } else {
-	          console.log('mongo connection to ' + mongoUrl);
-		      	Db = db;
-		        resolve(db);
-		      }
-			    connecting = false;
-	      });
-		  } else {
-		  	resolve(Db);
-			  connecting = false;
-		  }
-		}, wait);
-	});
-}
-
-
-function findById(id) {
-	if(typeof id === 'string') id = ObjectID(id);
-	return new Promise(function(resolve, reject) {
-		getDbConnection().then(function(db) {
-			db.collection('history').find({'_id': id}).toArray(function(err, docs) {
-		  	if(err) reject(err);
-				resolve(docs.slice(0, 1)[0]);
-			});
+// add connection to available connections or timeout
+// *****attach to mongoose schema, on changed listener*****
+function addSocketConnection(url, port) {
+	var name = url + ':' + port;
+	if(name in listeners) return Promise.resolve(null);
+	var test = new Promise(function(resolve, reject) {
+		var sock = net.connect(port, url);
+		sock.name = name;
+	  sock.once('connect', function(e) {
+			sock.write('success');
+		  resolve(sock);
+		});
+		sock.on('error', function(e) {
+			resolve(null);
+			sock.destroy();
+		});
+		sock.on('close', function(e) {
+			var index = listeners.indexOf(sock.name);
+			if(index > -1) listeners.splice(index, 1);
 		})
 	});
-}
 
-
-function findByQu(qu, lm) {
-	var lm = lm || {};
-	return new Promise(function(resolve, reject) {
-		getDbConnection().then(function(db) {
-		  db.collection('history').find(qu, lm).toArray(function(err, docs) {
-		  	if(err) reject(err);
-		  	resolve(docs);
-			});
-		});
+	// timeout after 1000ms if connection not established
+	var timeout = new Promise(function(resolve, reject) {
+		setTimeout(resolve, 1000, null);
+	})
+	return Promise.race([test, timeout]).then(function(socket) {
+		if(socket !== null) listeners[socket.name] = socket;
+		return true;
 	});
 }
 
-
-function updateByQu(qu, doc, all, onlySelectedFields) {
-	// if 'all', update all that match qu
-	// if 'onlySelectedFields' only modify fields in doc, otherwise replace entire doc
-	if(onlySelectedFields) doc = {$set : doc};
-	return new Promise(function(resolve, reject) {
-		getDbConnection().then(function(db) {
-		  db.collection('history').update(qu, doc, {multi : all}, function(err, records) {
-				if(err) reject(err);
-			  resolve(records);
-			});
-		});
-	});
+function notify(docs) {
+	console.log(docs);
 }
 
-
-function insertByDoc(doc) {
-	var _doc = validateProperties(doc);
-	if(_doc==false) return Promise.reject(new Error('required property missing'));
-	return new Promise(function(resolve, reject) {
-		getDbConnection().then(function(db) {
-		  db.collection('history').insert(_doc, function(err, docs) {
-		  	if(err) reject(err);
-		  	resolve(docs);
-		  });
-		});
-	});
+function isArray(_obj) {
+	for(var i in _obj) if(isNaN(i)) return false;
+	return true;
 }
 
-
-function insertByManyDocs(docs) {
-	var _docs = [];
-	for(var i in docs) _docs[i] = validateProperties(docs[i], true);
-	// if any doc is invalid, halt insert
-	if(_docs.indexOf(false) > -1) return Promise.reject('invalid type or missing req param for type');
-	return new Promise(function(resolve, reject) {
-		getDbConnection().then(function(db) {
-		  db.collection('history').insert(_docs, function(err, records) {
-		  	if(err) reject(err);
-		  	else resolve(records);
-		  });
-		});
-	});
-}
-
-
-function createMonitored(metaDoc) {
-	var req = ['name', 'region']
-  // HERE. create db for each region
-	return new Promise(function(resolve, reject) {
-
-		resolve(metaDoc);
-	});
-}
-
-
-// allowed properites
-var standard = ['name', 'type'];
-var propForType = {
-	'region' : [],
-	'player' : ['region', 'name'],
-	'game' : ['region'],
-	'server': ['region', 'address']
-};
-
-var reqPropForType = {
-	'region' : ['type'],
-	'player' : ['type', 'name'],
-	'game' : ['type'],
-	'team' : ['type'],
-	'server': ['type']
-}
-
-function validateProperties(_document, _safe) {
-	// if _safe is false, unallowed prop will be stripped
-	var _fail = false;
-	var _doc = _document;
-	if(typeof _document !== 'object') return false;
-	if(!('type' in _document)) return false;
-	if(Object.keys(reqPropForType).indexOf(_document.type) < 0) return false;
-
-	for(var i in reqPropForType[_document.type]) {
-    if(!(reqPropForType[_document.type][i] in _document)) return false;
-	}
-
-	// should be enabled so that unallowed props are not added
-	//for(var key in _document) {
-	//	if(propForType[_document.type].indexOf(key) > -1 || standard.indexOf(key) > -1) {
-	//		_doc[key] = _document[key];
-	//	} else {
-	//		_fail = true;
-	//	}
-	//}
-	//if(_safe && _fail) return false;
-
-	return _doc;
-}
-
-
-function handleError(_res, _error) {
-	if(_error.hasOwnProperty('status')) _res.status(_error.status);
-	_res.json(_error.message);
-}
-
-
-// validation for all types and locations
-router.all('*', function(req, res, next) {
-	var method = req.method;
-	if(['GET', 'POST', 'DELETE', 'PUT'].indexOf(method) < 0) {
-		res.status(405).json('method not implemented');
-	} else next();
-});
-
-
-// for adding new regions
-// case sensitive (should fix this)
-router.route('/')
-.post(function(req, res, next) {
-	var body = req.body;
-	if(!('type' in body && 'name' in body)) {
-		var _err = new Error('type and name required');
-		_err.status = 400;
-		next(_err);
-	}
-	else if(body.type != 'region') next(new Error('root only for new regions'));
+router.use(function(req, res, next) {
+	// verify that connection to the database is valid/available
+	var db = db || mongoose.connection;
+	if(db._listening) next();
 	else {
-		var _qu = {
-			'type' : 'region',
-			'name' : body.name
-		};
-	  findByQu(_qu).then(function(_found) {
-			// region name already exists
-			if(_found.length > 0) {
-				var _err = new Error('region name already exists');
-				_err.status = 409;
-			  return Promise.reject(_err);
-			}
-
-			
-			return insertByDoc(body);
-
-		}).then(function(_docAdded) {
-			res.json(_docAdded);
-
-		}).catch(function(err) {
-			next(err);
+		mongoose.connect(mongoUrl, function(err) {
+			if(err) return next(new Error('database error'));
+			console.log('Connected at %s', mongoUrl);
+		  db = mongoose.connection;
+			next();
 		});
 	}
 })
-.get(function(req, res, next) {
-  next('route');
 
-// modify region attributes
-}).put(function(req, res, next) {
-	var body = req.body;
-  if('_id' in body) {
-    findById(body._id).then(function(docs) {
-      console.log(typeof docs);
-    });
-  } else if(body.type != "region" && !('region' in body)) {
-    var _err = new Error('must specify region');
-    _err.status = 400;
-    return next(_err);
-  }
-  console.log(body);
-  
-  next();
-
-}).all(function(req, res, next) {
-  var _err = new Error('method not supported at ' + req.path);
-	_err.status = 400;
-	next(_err);
+router.all('/', function(req, res, next) {
+	res.json("hi");
 })
 
+// check for request for socket connection for message stream, future events
+// in this region will be passed
+//router.get('*', function(req, res, next) {
+//	// return details of new connection or, if invalid, do next()
+//	var port = req.query.port;
+//	var ip = req.query.address || // get specified ip
+//	     req.headers['x-forwarded-for'] ||  // get request ip
+//	     req.connection.remoteAddress || 
+//	     req.socket.remoteAddress ||
+//	     req.connection.socket.remoteAddress;
+//	if(port === undefined || !net.isIP(ip)) return next();
+//	addSocketConnection(ip, port).then(function(result) {
+//		res.json(result)
+//	}).catch(function(err) {
+//		next(new Error(err));
+//	});
+//});
 
-router.param('region', function(req, res, next, id) {
-	req.params.region = ObjectID.isValid(id) ? id.toLowerCase() : id;
-	next();
-});
-
-
-// validate region
-router.route('/:region*')
-.all(function(req, res, next) {
-	var region = req.params.region;
-	var _prom = new Promise(function(resolve, reject) {
-		if(ObjectID.isValid(region)) {
-		  // valid id, check if id exists in db
-			resolve(findById(region));
-
-		} else {
-		  var _qu = {};
-		 	_qu.type = 'region';
-		 	_qu.name = region;
-	    var _search = findByQu(_qu).then(function(_found) {
-		  	if(_found.length > 0) {
-		  		return _found[0]; // region set to id of first response
-		  	} else {
-				  var _err = new Error('invalid region id');
-					_err.status = 400;
-					return Promise.reject(_err);
-				}
-		  });
-
-			resolve(_search);
-		}
-	}).then(function(val) {
-		req.region = val;
-		next();
-
-	}).catch(function(err) {
-		next(err);
-	});
-
-});
-
-
-router.route('/:region/:objectType/:objectProp?/:objectVal?')
-// access objects of type 'objectVal'
-// if objectVal
-.all(function(req, res, next) {
-	next();
-})
+router.route('/:firstType/:firstValue?')
 .get(function(req, res, next) {
+	var Model = models.mapping[req.params.firstType];
+	var query = {};
+	var first_value = req.params.firstValue;
+	var restrict_to = 'name _id';
 
-	var _qu = {};
-	var _lm = {};
-
-	var objProp = req.params.objectProp;
-	var objVal = req.params.objectVal;
-
-	_qu.type = req.params.objectType;
-	_qu.region = req.region._id;
-	if(objProp !== undefined) {
-		if(objVal !== undefined) {
-			if(objProp == '_id') {
-				objVal = ObjectID.isValid(objVal) ? ObjectID(objVal) : objVal;
-			}
-		  _qu[objProp] = objVal;
+	if(first_value !== undefined) {
+	  if(mongoose.Types.ObjectId.isValid(first_value)) {
+			query._id = first_value;
 		} else {
-	  // limit search of 'region', 'objectType' to response with 'objectProp'
-			_lm[objProp] = 1;
+			query.name = first_value;
 		}
 	}
-
-	findByQu(_qu, _lm).then(function(docs) {
-		res.json(docs);
-	}).catch(function(err) {
-		next(err);
-	});
+  Model.find(query).select(restrict_to).exec(function(err, docs) {
+  	if(err) return next(new Error(err));
+  	res.json(docs);
+  });
 })
 .post(function(req, res, next) {
-	var _err = new Error('url not supported for this method');
-	_err.status = 400;
-	next(_err);
+	var Model = models.mapping[req.params.firstType];
+	var body = req.body;
+
+  // if passed as array, add each
+	if(isArray(body)) {
+		var promiseArray = [];
+		for(var i in body) {
+			var doc = body[i];
+			promiseArray.push(new Promise(function(resolve, reject) {
+				Model.create(doc, function(err, region) {
+		  		resolve(err ? err : region);
+		  	});
+			}));
+		}
+		Promise.all(promiseArray).then(function(vals) {
+		  res.json(vals);
+		});
+
+	// else add as single document
+	} else {
+		Model.create(body, function(err, region) {
+	    if(err) return next(new Error(err));
+			res.json(region);
+		});
+	}
 })
 .put(function(req, res, next) {
-	// single objects (or several objects that match qu in req.body) can be modified here
-	var _qu = {};
-	_qu.type = req.params.objectType;
-	_qu.region = req.region._id;
-	if(req.params.objectProp !== undefined && req.params.objectVal !== undefined) {
-		_qu[req.params.objectProp] = req.params.objectVal;
-	} else if (req.params.objectProp !== undefined || req.params.objectVal !== undefined) {
-		// should probably be an error
-		var _err = new Error('define property in req body');
-		_err.status = 400;
-		return next(_err);
-	}
+	var Model = models.mapping[req.params.firstType];
+	res.json(req.method);
 
-	// the following (..., true, true) should be modify-able by urlparams
-	//                     ^     ^
-	updateByQu(_qu, req.body, true, true).then(function(docs) {
-		res.json(docs);
-	}).catch(function(err) {
-		var _err = new Error(err);
-		err.status = 500;
-		next(_err);
-	});
 })
 .delete(function(req, res, next) {
-	var _err = new Error('not yet supported');
-	_err.status = 503;
-	next(_err);
-
-});
-
-
-
-
-router.route('/:regionId')
-.get(function(req, res, next) {
-	res.json(req.region);
-})
-.post(function(req, res, next) {
-	// {
-	// 0 : {'type' : 'player',
-	//      'name' : {'first' : 'Sam', 'last' : 'Zagrobelny'}
-	//      },
-	// 1 : {'type' : 'player',
-	// 			'name' : {'first' : 'Jerry, 'last' : 'John'}
-	// 			}
-	// }
-
-	var body = req.body;
-	var _err = new Error('invalid format');
-	_err.status = 400;
-	for(var key in body) if(isNaN(key)) return next(_err);
-	
-	for(var key in body) {
-		body[key].region = req.region._id
+	var Model = models.mapping[req.params.firstType];
+	var first_value = req.params.firstValue;
+	if(first_value !== undefined && mongoose.Types.ObjectId.isValid(first_value)) {
+	  Model.remove({ _id: first_value}, function(err) {
+			if(err) return next(new Error(err));
+			res.json("ok");
+		});
+	} else {
+		// this is rather dangerous
+		Model.remove({}, function(err) {
+			if(err) return next(new Error(err));
+			res.json("ok");
+		});
 	}
-
-	insertByManyDocs(body).then(function(docs) {
-		res.json(docs);
-	}).catch(function(err) {
-		var _err = new Error(err);
-		_err.status = 500;
-		next(_err);
-	});
-});
-
-
-// list all regions (only for testing)
-router.get('/', function(req, res) {
-	var _qu = {'type' : 'region'};
-	findByQu(_qu).then(function(_found) {
-		res.json(_found);
-	}).catch(function(err) {
-		var _err = new Error(err);
-		_err.status = 500;
-		next(_err);
-	});
-	
+})
+.all(function(req, res, next) {
+	var Model = models.mapping[req.params.firstType];
+	res.json(req.method);
 });
 
 
