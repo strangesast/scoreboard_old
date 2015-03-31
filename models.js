@@ -1,12 +1,18 @@
 var models = {};
 var mongoose = require('mongoose')
 		, Schema = mongoose.Schema;
+var EventEmitter = require('events').EventEmitter;
+
 // schemas and models
 
 // Region: collection of players, boards, teams, etc
 var regionSchema = new Schema({
 	name : {type: String, required: true},
 	createdAt: { type: Date, default: Date.now }
+});
+
+regionSchema.post('save', function(docs) {
+	models.events.emit('region-added', docs);
 });
 
 models.Region = mongoose.model('Region', regionSchema);
@@ -68,8 +74,11 @@ var actionSchema = new Schema({
   time:    { type: Date, required: true }
 });
 
-models.Action = mongoose.model('Action', actionSchema);
+actionSchema.post('save', function(doc) {
+	console.log("doc has been added");
+});
 
+models.Action = mongoose.model('Action', actionSchema);
 
 var liveactionSchema = new Schema({
 	parents: { type: [Schema.Types.ObjectId], required: true }, // who or what is the action attributed to
@@ -90,5 +99,7 @@ models.mapping = {
 	'player' : models.Player,
 	'game'   : models.Game
 }
+
+models.events = new EventEmitter();
 
 module.exports = models;

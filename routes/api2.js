@@ -11,6 +11,11 @@ var models = require('../models');
 var db;
 var listeners = {};
 
+models.events.on('region-added', function(doc) {
+	// stream to clients
+	console.log(doc);
+})
+
 // add connection to available connections or timeout
 // *****attach to mongoose schema, on changed listener*****
 function addSocketConnection(url, port) {
@@ -41,6 +46,10 @@ function addSocketConnection(url, port) {
 		if(socket !== null) listeners[socket.name] = socket;
 		return true;
 	});
+}
+
+function notify(docs) {
+	console.log(docs);
 }
 
 function isArray(_obj) {
