@@ -63,37 +63,67 @@ router.all('/', function(req, res, next) {
 
 // check for request for socket connection for message stream, future events
 // in this region will be passed
-router.get('*', function(req, res, next) {
-	// return details of new connection or, if invalid, do next()
-	var port = req.query.port;
-	var ip = req.query.address || // get specified ip
-	     req.headers['x-forwarded-for'] ||  // get request ip
-	     req.connection.remoteAddress || 
-	     req.socket.remoteAddress ||
-	     req.connection.socket.remoteAddress;
-	if(port === undefined || !net.isIP(ip)) return next();
-	addSocketConnection(ip, port).then(function(result) {
-		res.json(result)
-	}).catch(function(err) {
-		next(new Error(err));
-	});
-});
+//router.get('*', function(req, res, next) {
+//	// return details of new connection or, if invalid, do next()
+//	var port = req.query.port;
+//	var ip = req.query.address || // get specified ip
+//	     req.headers['x-forwarded-for'] ||  // get request ip
+//	     req.connection.remoteAddress || 
+//	     req.socket.remoteAddress ||
+//	     req.connection.socket.remoteAddress;
+//	if(port === undefined || !net.isIP(ip)) return next();
+//	addSocketConnection(ip, port).then(function(result) {
+//		res.json(result)
+//	}).catch(function(err) {
+//		next(new Error(err));
+//	});
+//});
 
-router.route('/region')
+router.route('/region/:regionId?')
 .get(function(req, res, next) {
-	res.json(req.method);
+	var query = {};
+	var region_identifier = req.params.regionId;
+	// is a regionId passed
+	if(region_identifier !== undefined) {
+	  if(mongoose.Types.ObjectId.isValid(region_identifier)) {
+			query._id = region_identifier;
+		} else {
+			query.name = region_identifier;
+		}
+	}
+  models.Region.find(query).select('name _id').exec(function(err, docs) {
+    	if(err) return next(new Error(err));
+    	res.json(docs);
+  });
+
 })
 .post(function(req, res, next) {
-	res.json(req.method);
-	
+	var body = req.body;
+	models.Region.create(body, function(err, region) {
+	  res.json([err, region]);
+	})
 })
 .put(function(req, res, next) {
 	res.json(req.method);
 
 })
+.delete(function(req, res, next) {
+	var region_identifier = req.params.regionId;
+	if(region_identifier !== undefined && mongoose.Types.ObjectId.isValid(region_identifier)) {
+	  models.Region.remove({ _id: region_identifier}, function(err) {
+			if(err) return next(new Error(err));
+			res.json("ok");
+		});
+	} else {
+		// this is rather dangerous
+		models.Region.remove({}, function(err) {
+			if(err) return next(new Error(err));
+			res.json("ok");
+		});
+	}
+})
 .all(function(req, res, next) {
 	res.json(req.method);
-
 });
 
 

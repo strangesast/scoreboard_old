@@ -5,7 +5,8 @@ var mongoose = require('mongoose')
 
 // Region: collection of players, boards, teams, etc
 var regionSchema = new Schema({
-	name : String
+	name : {type: String, required: true},
+	createdAt: { type: Date, default: Date.now }
 });
 
 models.Region = mongoose.model('Region', regionSchema);
@@ -16,11 +17,11 @@ var playerSchema = new Schema({
 	name:     {
 		         first : String,
 		         middle: String,
-		         last:   String
+		         last:   { type: String, required: true}
 	          },
 	age:       Number,
 	team:      { type: Schema.Types.ObjectId, ref: 'Team' },
-	region:    { type: Schema.Types.ObjectId, ref: 'Region' },
+	region:    { type: Schema.Types.ObjectId, ref: 'Region', required: true},
 	createdAt: { type: Date, default: Date.now },
 	updatedAt: { type: Date, default: Date.now },
   history:   { type: Schema.Types.ObjectId, ref: 'History' }
@@ -31,7 +32,7 @@ models.Player = mongoose.model('Player', playerSchema);
 
 // Team: collection of players, reference to history document
 var teamSchema = new Schema({
-	name:     String,
+	name:     { type: String, required: true },
   members: [{ type: Schema.Types.ObjectId, ref: 'Player' }],
 });
 
@@ -40,7 +41,7 @@ models.Team = mongoose.model('Team', teamSchema);
 
 // Game: collection of actions, meta information includes partipating teams / players, live status, etc
 var gameSchema = new Schema({
-	name: String,
+	name: { type: String, required: true },
 	members: [Schema.Types.Mixed],
   startTime: Date,
 	history: { type: Schema.Types.ObjectId, ref: 'History'},
@@ -52,27 +53,28 @@ models.Game = mongoose.model('Game', gameSchema);
 
 // Board: address and infomation about a displayServer instance
 var boardSchema = new Schema({
-	hostname: String,
-	port: Number,
+	hostname: { type: String, required: true },
+	port: { type: Number, required: true },
 	follows: [Schema.Types.ObjectId] // what object(s) is it displaying
 });
 
 models.Board = mongoose.model('Board', boardSchema);
 
+
 // Action: an event associated with Player or Game
 var actionSchema = new Schema({
-	parents: [Schema.Types.ObjectId], // who or what is the action attributed to
-	action: String, // what action is it
-  time: Date
+	parents: { type: [Schema.Types.ObjectId], required: true }, // who or what is the action attributed to
+	action: { type: String, required: true }, // what action is it
+  time: { type: Date, required: true }
 });
 
 models.Action = mongoose.model('Action', actionSchema);
 
 
 var liveactionSchema = new Schema({
-	parents: [Schema.Types.ObjectId], // who or what is the action attributed to
-	action: String, // what action is it
-  time: Date
+	parents: { type: [Schema.Types.ObjectId], required: true }, // who or what is the action attributed to
+	action:  { type: String, required: true }, // what action is it
+  time:    { type: Date, required: true }
 }, { capped: 2048 });
 
 models.LiveAction = mongoose.model('LiveAction', liveactionSchema);
