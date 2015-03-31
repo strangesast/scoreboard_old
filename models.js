@@ -41,10 +41,10 @@ models.Team = mongoose.model('Team', teamSchema);
 
 // Game: collection of actions, meta information includes partipating teams / players, live status, etc
 var gameSchema = new Schema({
-	name: { type: String, required: true },
-	members: [Schema.Types.Mixed],
-  startTime: Date,
-	history: { type: Schema.Types.ObjectId, ref: 'History'},
+	name:        { type: String, required: true },
+	members:     [Schema.Types.Mixed],
+  startTime:   { type: Date },
+	history:     { type: Schema.Types.ObjectId, ref: 'History'},
 	liveHistory: { type: Schema.Types.ObjectId, ref: 'LiveHistory'}
 });
 
@@ -54,8 +54,8 @@ models.Game = mongoose.model('Game', gameSchema);
 // Board: address and infomation about a displayServer instance
 var boardSchema = new Schema({
 	hostname: { type: String, required: true },
-	port: { type: Number, required: true },
-	follows: [Schema.Types.ObjectId] // what object(s) is it displaying
+	port:     { type: Number, required: true },
+	follows:  [{ type: Schema.Types.ObjectId }] // what object(s) is it displaying
 });
 
 models.Board = mongoose.model('Board', boardSchema);
@@ -64,8 +64,8 @@ models.Board = mongoose.model('Board', boardSchema);
 // Action: an event associated with Player or Game
 var actionSchema = new Schema({
 	parents: { type: [Schema.Types.ObjectId], required: true }, // who or what is the action attributed to
-	action: { type: String, required: true }, // what action is it
-  time: { type: Date, required: true }
+	action:  { type: String, required: true }, // what action is it
+  time:    { type: Date, required: true }
 });
 
 models.Action = mongoose.model('Action', actionSchema);
