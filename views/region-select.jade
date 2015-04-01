@@ -27,7 +27,7 @@ block links
 
 block content
   template(is="auto-binding")#t
-    core-ajax(auto, loading="{{loading}}", url="/api", response="{{regionsAvailable}}", handleAs="json", method="GET")#getRegions
+    core-ajax(auto, loading="{{loading}}", url="/api/region", response="{{regionsAvailable}}", handleAs="json", method="GET")#getRegions
     core-scaffold(mode="seamed")#scaffold
       core-header-panel(navigation flex mode="waterfall")
         core-toolbar
@@ -36,7 +36,7 @@ block content
               span sportsync
         core-menu(vertical justified layout selected="{{selected}}")
           template(repeat="{{region in regionsAvailable}}")#regionMenuList
-            paper-item(on-tap="{{scrollTo}}") {{region.name}}
+            paper-item(on-tap="{{scrollTo}}" linked-to="{{region._id}}") {{region.name}}
           paper-button(raised on-tap="{{refresh}}")
             span refresh
 
@@ -51,7 +51,7 @@ block content
           div(horizontal?="{{arranged}}" layout?="{{arranged}}" cross-fade wrap?="{{arranged}}")
             template(repeat="{{region, i in regionsAvailable}}")#regionList
               div(style="{{arranged ? 'display: inline-block' : ''}}" self-center)
-                paper-shadow(id="{{region.name}}", z=1, hero-id="{{region._id}}", hero?="{{$.pages.selected === i+1}}").small.outer
+                paper-shadow(id="{{region._id}}", z=1, hero-id="{{region._id}}", hero?="{{$.pages.selected === i+1}}").small.outer
                   .inner(class="{{selected==i ? '' : 'sm'}}")
                     div(layout horizontal)
                       core-icon-button(icon="{{selected == i ? 'expand-more' : 'chevron-right'}}", on-tap="{{selectView}}")

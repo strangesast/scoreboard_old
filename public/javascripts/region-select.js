@@ -18,7 +18,8 @@ addEventListener('template-bound', function(e) {
     scope.activeRegionName = null;
 		document.getElementById('scaffold').closeDrawer();
 		setTimeout(function() {
-			var elem = document.getElementById(e.target.innerHTML);
+			var _id = e.target.getAttribute('linked-to');
+			var elem = document.getElementById(_id);
 		  var pos = $(elem).position().top
 		  $(document.getElementById('scaffold').scroller).animate({
 				scrollTop: pos
@@ -34,6 +35,7 @@ addEventListener('template-bound', function(e) {
 
   scope.back = function(e) {
     if(this.$.pages.selected == 0) {
+			console.log('A')
       var bool = e.target.templateInstance.model.arranged;
       e.target.templateInstance.model.arranged = !bool;
 
