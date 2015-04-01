@@ -85,6 +85,10 @@ schemas['Action'] = new Schema({
 	attributedTo: { type: Schema.Types.ObjectId, ref: 'User' } // who is performing action
 }, { capped: 1048576, tailable: true}); // may need to be larger
 
+schemas['Action'].post('save', function(doc) {
+	models.events.emit('action', doc);
+});
+
 // User: a user with varying privledges
 schemas['User'] = new Schema({
 	name:   { type: String, required: true },
