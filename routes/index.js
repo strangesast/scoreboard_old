@@ -19,7 +19,6 @@ router.get('/current-game', function(req, res) {
 });
 
 router.get('/region/:region?', function(req, res) {
-	console.log(req.params);
 	res.render('region-select');
 })
 

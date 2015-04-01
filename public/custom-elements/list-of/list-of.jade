@@ -1,0 +1,51 @@
+link(rel="import", href="/components/core-list/core-list.html")
+link(rel="import", href="/components/core-ajax/core-ajax.html")
+link(rel="import", href="/components/core-icon-button/core-icon-button.html")
+link(rel="import", href="/components/core-scaffold/core-scaffold.html")
+link(rel="import", href="/components/paper-shadow/paper-shadow.html")
+link(rel="import", href="/components/paper-input/paper-input.html")
+link(rel="import", href="/components/paper-spinner/paper-spinner.html")
+link(rel="import", href="/components/paper-button/paper-button.html")
+link(rel="import", href="/components/core-toolbar/core-toolbar.html")
+link(rel="import", href="/components/core-icon/core-icon.html")
+link(rel="import", href="/components/core-item/core-item.html")
+link(rel="import", href="/components/paper-item/paper-item.html")
+link(rel="import", href="/components/paper-toast/paper-toast.html")
+link(rel="import", href="/components/core-menu/core-menu.html")
+link(rel="import", href="/components/core-menu-button/core-menu-button.html")
+link(rel="import", href="/components/paper-menu-button/paper-menu-button.html")
+link(rel="import", href="/components/core-dropdown/core-dropdown.html")
+link(rel="import", href="/components/core-animated-pages/core-animated-pages.html")
+link(rel="import", href="/components/core-header-panel/core-header-panel.html")
+link(rel="import", href="/components/core-scroll-header-panel/core-scroll-header-panel.html")
+
+link(rel="stylesheet", href="./list-test.css")
+
+
+polymer-element(name="list-of", attributes="objects")
+  template
+    core-scaffold(flex mode="seamed")#scaffold
+      core-header-panel(navigation flex)
+        core-toolbar
+          a(href="/index")
+            core-icon-button(src="/images/icon_dark_m.png")
+              span sportsync
+        core-menu(vertical justified layout selected="{{selected}}")
+          paper-button(raised on-tap="{{refresh}}")
+            span refresh
+
+      div(tool)
+        core-icon-button(icon="arrow-back", on-tap="{{back}}")
+        span(flex) Back
+      .content(vertical layout)
+        core-list(flex runawayFactor="4", selection="{{selected}}", data="{{objects}}", scrollTarget="{{this.$.scaffold.scroller}}")
+          template
+            div(horizontal layout id="item-{{index}}")
+              p Toast
+
+  script().
+    Polymer({
+      ready : function() {
+        console.log('toast!');
+      }
+    })
