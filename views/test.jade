@@ -1,12 +1,14 @@
 head
   link(rel='stylesheet', href='/stylesheets/test.css')
+  link(rel='import', href='/custom-elements/list-of/list-of.html')
 
-body
-  canvas#canvas
-div.font(style="visiblity: hidden; height: 0")
+  script(src="/components/webcomponentsjs/webcomponents.js")
+  link(rel="import", href="/components/polymer/polymer.html") 
+
+
+
+body(fullbleed)
+  list-of(layout horizontal)
+
 
 block scripts
-  script(src="/components/jquery/dist/jquery.min.js")
-  //script(src="/javascripts/test.js")
-  script(src="/javascripts/fonts.js")
-  script(src="/javascripts/index.js")
