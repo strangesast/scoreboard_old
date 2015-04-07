@@ -1,0 +1,40 @@
+link(rel="import", href="/components/paper-shadow/paper-shadow.html")
+
+
+
+polymer-element(name="sb-item", attributes="items selected i")
+  template
+    style.
+      :host {
+      }
+      .selected {
+        min-height: 500px;
+        margin-bottom: 15px;
+      }
+      #card {
+        padding: 8px;
+        margin: 10px;
+        margin-top: 15px;
+        height: auto;
+        transition: min-height 0.25s;
+      }
+
+    paper-shadow(animated, on-click="{{action}}", z="0", class="{{ {selected: selected != null} | tokenList}}")#card
+      content
+      content
+      
+      
+  script().
+    Polymer({
+      ready : function() {
+      },
+      action: function() {
+        this.fire('selected', {i : this.i, t: this});
+
+      },
+      selectedChanged: function(o, n) {
+        if(n !== null) {
+          this.action(); this.$.card.setZ(1);
+        } else this.$.card.setZ(0);
+      }
+    })

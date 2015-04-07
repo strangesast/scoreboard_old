@@ -1,14 +1,23 @@
 head
   link(rel='stylesheet', href='/stylesheets/test.css')
-  link(rel='import', href='/custom-elements/list-of/list-of.html')
 
   script(src="/components/webcomponentsjs/webcomponents.js")
   link(rel="import", href="/components/polymer/polymer.html") 
 
+  link(rel='import', href='/custom-elements/list-of/list-of.html')
 
 
 body(fullbleed)
-  list-of(layout horizontal)
+  template(is="auto-binding")
 
+    core-ajax(url="/api/region", response="{{objects}}", handleAs="json", auto)
+    section(layout vertical)
+      list-of(items="{{objects}}")
+
+    section(layout vertical)
+      summary-of()
+
+
+script(src="/components/jquery/dist/jquery.min.js")
 
 block scripts

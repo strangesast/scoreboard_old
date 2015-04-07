@@ -19,43 +19,67 @@ link(rel="import", href="/components/core-animated-pages/core-animated-pages.htm
 link(rel="import", href="/components/core-header-panel/core-header-panel.html")
 link(rel="import", href="/components/core-scroll-header-panel/core-scroll-header-panel.html")
 
+
+link(rel='import', href='/custom-elements/sb-item/sb-item.html')
+
 link(rel="stylesheet", href="./list-of.css")
 
 
-polymer-element(name="list-of", attributes="objects")
+polymer-element(name="list-of", attributes="items")
   template
     style.
       :host {
-        width: 100%;
-        height: 100%;
       }
-      .content {
-        height: 100%;
-        
+      .item {
+        margin: 20px;
+        padding: 10px;
       }
-    core-ajax(url="/api/region", response="{{objects}}", handleAs="json", auto)
+      .selected {
+        background-color: blue;
+      }
     core-scaffold(flex, mode="seamed")#scaffold
-      core-header-panel(navigation flex)
+      core-header-panel(navigation flex)#headerpanel
         core-toolbar
           a(href="/index")
             core-icon-button(src="/images/icon_dark_m.png")
               span sportsync
-        core-menu(vertical justified layout selected="{{selected}}")
-          paper-button(raised on-tap="{{refresh}}")
-            span refresh
+        core-menu(fit vertical layout)
+          core-list(flex data="{{items}}" selection="{{selection}}")
+            template
+              paper-item(selected="{{selection._id == model._id}}")
+                span {{model.name}}
 
       div(tool)
         core-icon-button(hidden icon="arrow-back", on-tap="{{back}}")
         span(flex) Back
-      .content(vertical layout flex)
-        core-list(selection="{{selected}}", data="{{objects}}", scrollTarget="{{$.scaffold.scroller}}")
+      .content(fit vertical layout)
+        core-list(flex selection="{{selection}}", data="{{items}}")#mainList
           template
-            div(flex, class="{{ {selected : selected} | tokenList}}").row
-              p Toast {{model._id}}
+            paper-shadow(z=1 class="{{ {selected: model._id == selection._id} | tokenList}}").item
+              p {{model.name}}
+              p {{model._id}}
 
   script().
-    Polymer({
+    Polymer('list-of', {
       ready : function() {
-        console.log('toast!');
-      }
-    })
+
+      },
+      selection: undefined,
+      selectedChanged: function(o, n) {
+        console.log(n);
+
+      },
+      newselection: function(e) {
+      },
+
+      updateSelected: function(e) {
+        console.log(e);
+        //var i = e.detail.i;
+        //this.selected = i;
+      },
+      selectionChanged: function(o, n) {
+        //console.log(this.$.mainList.scrollToItem(10));
+        //console.log(n);
+      },
+
+    });
