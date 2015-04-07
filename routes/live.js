@@ -8,6 +8,28 @@ var Promise = require('es6-promise').Promise;
 var WebSocketServer = require('ws').Server,
 	  wss = new WebSocketServer({port : 3030});
 var models = require('../models');
+var net = require('net');
+var JsonSocket = require('json-socket');
+
+
+var port = 8083;
+var server = net.createServer();
+server.on('connection', function(socket) {
+	console.log('socket connected');
+	socket = new JsonSocket(socket);
+	socket.sendMessage({message: 'toast!'}, function(err, obj) {
+		if(err) console.log(err);
+		else console.log('socket message sent')
+	})
+
+	socket.on('message', function(message) {
+		console.log(message);
+	})
+	
+}).listen(port, function(err, obj) {
+	console.log('listening on on %s', port);
+});
+
 
 var default_limit = 50;
 
