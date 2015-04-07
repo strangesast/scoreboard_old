@@ -11,26 +11,6 @@ var models = require('../models');
 var net = require('net');
 var JsonSocket = require('json-socket');
 
-
-var port = 8083;
-var server = net.createServer();
-server.on('connection', function(socket) {
-	console.log('socket connected');
-	socket = new JsonSocket(socket);
-	socket.sendMessage({message: 'toast!'}, function(err, obj) {
-		if(err) console.log(err);
-		else console.log('socket message sent')
-	})
-
-	socket.on('message', function(message) {
-		console.log(message);
-	})
-	
-}).listen(port, function(err, obj) {
-	console.log('listening on on %s', port);
-});
-
-
 var default_limit = 50;
 
 var db;
@@ -72,6 +52,28 @@ router.get('/', function(req, res, next) {
 var tcp_listeners = {};
 var ws_listeners = {};
 
+// tcp
+var port = 8084;
+var server = net.createServer();
+server.on('connection', function(socket) {
+  console.log('connected')
+  socket = new JsonSocket(socket);
+  socket.on('message', function(message) {
+    console.log(message);
+  });
+
+  models.events.on('action', function(action) {
+  	socket.sendMessage(JSON.stringify(action));
+  
+    // if action matches any of the listeners, "join" it and send
+  })
+  
+  socket.sendMessage('connected to scoreboard');
+
+}).listen(port, function() {
+  console.log('listening on ' + port + ' for tcp connections');
+});
+
 // websocket server (probably a bad place for this)
 wss.on('connection', function(ws) {
 	ws.on('message', function(message) {
@@ -82,11 +84,6 @@ wss.on('connection', function(ws) {
 })
 
 // listen for new actions
-models.events.on('action', function(action) {
-	console.log(action);
-  // if action matches any of the listeners, "join" it and send
-})
-
 
 
 module.exports = router;
