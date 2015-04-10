@@ -9,6 +9,12 @@ models.events = new EventEmitter();
 // schemas
 var schemas = {};
 
+// Demo
+schemas['Demo'] = new Schema({
+	name : {type: String, required: true},
+	createdAt: { type: Date, default: Date.now }
+});
+
 // Region: collection of players, boards, teams, etc
 schemas['Region'] = new Schema({
 	name : {type: String, required: true},

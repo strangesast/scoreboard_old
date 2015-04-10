@@ -1,24 +1,93 @@
 link(rel="import", href="/components/paper-shadow/paper-shadow.html")
 link(rel="import", href="/components/paper-spinner/paper-spinner.html")
+link(rel="import", href="/components/paper-input/paper-input.html")
+link(rel="import", href="/components/core-ajax/core-ajax.html")
+link(rel="import", href="/components/core-animated-pages/core-animated-pages.html")
 
-polymer-element(name="demo-page", attributes="")
+
+polymer-element(name="demo-page", attributes="data loading")
   template
     style.
+      :host {
+        margin-top: 20%;
+      }
+      core-toolbar {
+        background-color: rgba(0, 0, 0, 0);
+      }
       .content {
         min-width: 300px;
         min-height: 100px;
-        height:200px;
+        height: 200px;
+      }
+      .add {
+        margin-left: 10px;
+        margin-right: 10px;
+        padding-top: 20px;
+        min-height: 200px;
+        max-width: 500px;
+        border-radius: 20px;
+        background-color: #E8E8E8;
+      }
+      .add-area {
+        padding: 20px;
       }
       
     div(fit vertical layout center)
-      h1 Demo
-      paper-shadow(horizontal layout center center-justified z=1).content
-        paper-spinner(active)
+      core-ajax(auto, loading="{{loading}}", url="/api/demo", response="{{data}}", handleAs="json", method="GET")#list
+      core-animated-pages(fit, selected="{{sel}}", transitions="hero-transition cross-fade")
+        section(vertical layout center)
+          h1(cross-fade) Demo
+          paper-shadow(hero-id="a" hero vertical layout center-justified center z=1 cross-fade).content
+
+            template(repeat="{{each in data}}")
+              p {{each.name}}
+
+            template(if="{{data.length == 0}}")
+              p No existing sessions
+
+            core-icon-button(icon="add" on-click="{{_new}}") New Demo
+
+            div(hidden?="{{!loading}}" fit vertical layout center center-justified)
+              paper-spinner(active?="{{loading}}")
+
+        section(vertical layout center-justifed)
+          div(hero-id="a" hero self-center cross-fade layout vertical center-justified).add
+            core-toolbar.toolbar
+              core-icon-button(icon="close" on-click="{{close}}")
+              span(flex) {{ newname || 'New Demo'}}
+
+            .add-area(horiztonal layout end)
+              core-ajax(url="/api/demo", loading="{{loading}}", method="POST", on-core-response="{{handle}}")#submit
+              paper-input(flex, label="Name" type="text" floatingLabel=true value="{{ newname }}") Name
+              div 
+                core-icon-button(icon="done" on-click="{{submit}}")
+
+            
+         
 
 
   script().
     Polymer('demo-page', {
       ready : function() {
+        console.log(this.data);
+      },
+      _new: function() {
+        this.sel = 1;
+      },
+      close: function() {
+        this.sel = 0;
+      },
+      submit: function() {
+        var sub = this.$.submit;
+        var obj = [{ "name": this.newname }];
+        console.log(JSON.stringify(obj));
+        sub.contentType = "application/json";
+        sub.body = JSON.stringify(obj);
+        sub.go()
+        this.sel = 0;
+      },
+      handle: function(e) {
+        this.list.go()
       }
     });
 
