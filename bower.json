@@ -28,7 +28,11 @@
     "core-menu-button": "Polymer/core-menu-button#~0.5.5",
     "paper-menu-button": "Polymer/paper-menu-button#~0.5.5",
     "core-overlay": "Polymer/core-overlay#~0.5.5",
-    "paper-input": "Polymer/paper-input#~0.5.5"
+    "paper-input": "Polymer/paper-input#~0.5.5",
+    "core-pages": "Polymer/core-pages#~0.5.5",
+    "more-routing": "Polymore/more-routing#~0.5.0",
+    "page.js": "~1.6.1",
+    "flatiron-director": "PolymerLabs/flatiron-director#~0.5.0"
   },
   "resolutions": {
     "polymer": "~0.5.4",

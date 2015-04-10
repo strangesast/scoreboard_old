@@ -6,9 +6,10 @@ router.get('/', function(req, res) {
   res.render('index', {'animate':true});
 });
 
-router.get('/index', function(req, res) {
+router.get('/demo', function(req, res) {
   res.render('index', {'animate':false});
 });
+
 
 router.get('/test', function(req, res) {
 	res.render('test');

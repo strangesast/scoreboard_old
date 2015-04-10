@@ -1,5 +1,5 @@
 body {
-	background-color: black;
+	/*background-color: black;*/
 	transition: background 1.0s linear;
 	overflow: hidden;
 }
@@ -29,15 +29,14 @@ core-toolbar > a {
 }
 
 .content {
-	margin: auto;
 	padding: 0px 8px;
-	max-width: 800px;
+	/*max-width: 800px;*/
 }
 
 .section {
-	margin: auto;
 	margin-top: 30px;
-	max-width: 300px;
+	height: 200px;
+	min-width: 300px;
 	padding: 10px;
 }
 
@@ -45,6 +44,27 @@ core-toolbar > a {
 	margin: auto;
 }
 
-canvas {
-	margin-top: 10%;
+.background-blur {
+  background-color: rgba(0, 0, 0, 0);
+  /*
+  -webkit-filter: blur(5px);
+  -moz-filter: blur(5px);
+  -o-filter: blur(5px);
+  -ms-filter: blur(5px);
+  filter: blur(5px);
+*/
+}
+
+.filled {
+  background-color: rgba(0, 0, 0, 0);
+}
+
+.background {
+  z-index: 200;
+  position: fixed;
+	left: 0px;
+	top: 0px;
+}
+
+#timer {
 }

@@ -1,0 +1,34 @@
+link(rel="import", href="/components/core-toolbar/core-toolbar.html")
+link(rel="import", href="/components/core-header-panel/core-header-panel.html")
+link(rel="import", href="/components/paper-icon-button/paper-icon-button.html")
+link(rel="import", href="/components/paper-button/paper-button.html")
+link(rel="import", href="/components/paper-shadow/paper-shadow.html")
+link(rel="import", href="/components/core-icon/core-icon.html")
+link(rel="import", href="/components/core-icon-button/core-icon-button.html")
+
+link(rel="stylesheet", href="/stylesheets/index.css")
+
+
+polymer-element(name="index-page", attributes="animate")
+  template
+    style.
+      :host {
+        margin-top: 20%;
+      }
+      .content {
+        min-width: 300px;
+      }
+      
+    div(fit vertical layout center)
+      h1 Sportsync
+      paper-shadow(vertical layout center z=1).content
+        content
+
+  script().
+    Polymer('index-page', {
+      ready : function() {
+      }
+    });
+
+ // script(src="/javascripts/fonts.js")
+ // script(src="/javascripts/index.js")

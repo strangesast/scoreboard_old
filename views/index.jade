@@ -1,39 +1,66 @@
 extends layout
 
 block links
-  link(rel="import", href="/components/core-toolbar/core-toolbar.html")
-  link(rel="import", href="/components/core-header-panel/core-header-panel.html")
-  link(rel="import", href="/components/paper-icon-button/paper-icon-button.html")
-  link(rel="import", href="/components/paper-button/paper-button.html")
+  link(rel="import", href="/components/core-animated-pages/core-animated-pages.html")
+  link(rel="import", href="/components/core-animated-pages/transitions/slide-from-right.html")
   link(rel="import", href="/components/paper-shadow/paper-shadow.html")
-  link(rel="import", href="/components/core-icon/core-icon.html")
-  link(rel="import", href="/components/core-icon-button/core-icon-button.html")
+  link(rel="import", href="/components/flatiron-director/flatiron-director.html")
 
-  link(rel="stylesheet", href="/stylesheets/style.css")
+  link(rel='import', href='/custom-elements/index-page/index-page.html')
+  link(rel='import', href='/custom-elements/demo-page/demo-page.html')
+
   link(rel="stylesheet", href="/stylesheets/index.css")
 
+
 block content
-  core-header-panel(flex mode="seamed")
-    core-toolbar(horizontal layout)
-      a(href="/index")
-        core-icon-button(src="/images/icon_light.png")
-          span sportsync
-    .content
-      canvas#canvas.animated
-      paper-shadow.card.section(layout vertical z=1)
-        a(href="/current-game") 
-          paper-button Local Event
-        a(href="/current-game") 
-          paper-button Demo
-        a(href="/region") 
-          paper-button Regions
+  template(is="auto-binding")#mother
+    core-header-panel(fit mode="seamed")
+      core-toolbar(horizontal layout hidden?="{{selection == 'loading'}}")
+        a(href="/#index")
+          core-icon-button(src="/images/icon_light.png")
+            span sportsync
+      .content(fit horizontal center center-justified layout)
+        core-animated-pages(fit selected="{{selection}}" valueattr="page" transitions="slide-from-right cross-fade-all")#pages
+          section(page="loading")
+            div(on-click="{{skip}}")
+              canvas(self-center hidden?="{{selection=='demo'}}").background#timer
+              canvas.background#canvas1
+              canvas.background#canvas2
+              canvas.background#canvas3
+              canvas.background#canvas4
+              canvas.background#canvas5
+              canvas.background#canvas6
+
+          section(page="index")
+            index-page(fit)
+              a(href="/current-game") 
+                paper-button Local Event
+              a(href="#demo") 
+                paper-button Demo
+              a(href="/region") 
+                paper-button Regions
+
+          section(page="demo")
+            demo-page(fit)
+
+    flatiron-director(route="{{selection}}" autoHash)
+
+  script().
+    document.addEventListener('template-bound', function(e) {
+      var scope = e.target;
+      scope.skip = function(e) {
+        scope.selection = "index";
+      }
+
+      var selected;
+      if(window.location.pathname == '/') scope.selection= "loading";
 
 
+    });
 
+  block scripts
 
-block scripts
-
-  script.
-    var anim = !{JSON.stringify(animate)};
+  //script.
+  //  var anim = !{JSON.stringify(animate)};
   script(src="/javascripts/fonts.js")
   script(src="/javascripts/index.js")

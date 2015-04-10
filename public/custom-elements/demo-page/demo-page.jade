@@ -1,0 +1,25 @@
+link(rel="import", href="/components/paper-shadow/paper-shadow.html")
+link(rel="import", href="/components/paper-spinner/paper-spinner.html")
+
+polymer-element(name="demo-page", attributes="")
+  template
+    style.
+      .content {
+        min-width: 300px;
+        min-height: 100px;
+        height:200px;
+      }
+      
+    div(fit vertical layout center)
+      h1 Demo
+      paper-shadow(horizontal layout center center-justified z=1).content
+        paper-spinner(active)
+
+
+  script().
+    Polymer('demo-page', {
+      ready : function() {
+      }
+    });
+
+
