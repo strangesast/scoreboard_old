@@ -4,20 +4,23 @@ body {
 	overflow: hidden;
 }
 core-header-panel {
-	background-color: rgba(0, 0, 0, 0);
+	/*background-color: rgba(0, 0, 0, 0);*/
 }
 
 core-toolbar {
-  background: rgba(0, 0, 0, 0);
+  /*background: rgba(0, 0, 0, 0);*/
 	/*background: #E8E8E8;*/
 }
 
-core-toolbar > a {
+core-toolbar > .header-content > a {
   color: #00274D;
+  color: white;
 }
 
-.header-content {
-	width: 800px;
+core-toolbar > .header-content {
+	max-width: 800px;
+	margin: auto;
+
 }
 
 .header-content > a {

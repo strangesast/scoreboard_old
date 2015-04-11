@@ -21,6 +21,9 @@ block links
   link(rel="import", href="/components/core-animated-pages/core-animated-pages.html")
   link(rel="import", href="/components/core-header-panel/core-header-panel.html")
   link(rel="import", href="/components/core-scroll-header-panel/core-scroll-header-panel.html")
+
+  link(rel='import', href='/custom-elements/region-info/region-info.html')
+
   link(rel="stylesheet", href="/stylesheets/style.css")
   link(rel="stylesheet", href="/stylesheets/region-select.css")
 
@@ -31,8 +34,8 @@ block content
     core-scaffold(mode="seamed")#scaffold
       core-header-panel(navigation flex mode="waterfall")
         core-toolbar
-          a(href="/index")
-            core-icon-button(src="/images/icon_dark_m.png")
+          a(href="/#index")
+            core-icon-button(src="/images/icon_l.png")
               span sportsync
         core-menu(vertical justified layout selected="{{selected}}")
           template(repeat="{{region in regionsAvailable}}")#regionMenuList
@@ -64,34 +67,36 @@ block content
 
           template(repeat="{{region, i in regionsAvailable}}")
             section(vertical layout)
-              div(flex vertical layout hero-id="{{region._id}}" hero?="{{$.pages.selected === i+1}}").view
-                div(layout center-justified horizontal center).loadingItem
-                  paper-spinner(active)
-                div(layout horizontal flex)
-                  core-header-panel(mode="scroll" flex)
-                    core-toolbar
-                      span {{region.name}}
-                      span(flex)
-                      paper-menu-button
-                        core-icon-button(icon="menu")
-                        core-dropdown(layered halign="right").dropdown
-                          core-menu
-                            paper-item(on-tap="{{toggleLogin}}") Admin
-                            paper-item toast
-                            paper-item toast
-                            paper-item toast
-                    .maxcontent(fit)
-                      h2 Description
-                      p Region description.
-                      h2 Child Elements
-                      h3 Display Boards
-                      p board
-                      h3 Teams
-                      p element
-                      h3 History
-                      p element
-                      h3 Players
-                      p element
+              region-info(regionid="{{region._id}}" name="{{region.name}}" flex vertical layout hero-id="{{region._id}}" hero?="{{$.pages.selected === i+1}}").view
+
+              //div(flex vertical layout hero-id="{{region._id}}" hero?="{{$.pages.selected === i+1}}").view
+                //div(layout center-justified horizontal center).loadingItem
+                //  paper-spinner(active)
+                //div(layout horizontal flex)
+                //  core-header-panel(mode="scroll" flex)
+                //    core-toolbar
+                //      span {{region.name}}
+                //      span(flex)
+                //      paper-menu-button
+                //        core-icon-button(icon="menu")
+                //        core-dropdown(layered halign="right").dropdown
+                //          core-menu
+                //            paper-item(on-tap="{{toggleLogin}}") Admin
+                //            paper-item toast
+                //            paper-item toast
+                //            paper-item toast
+                //    .maxcontent(fit)
+                //      h2 Description
+                //      p Region description.
+                //      h2 Child Elements
+                //      h3 Display Boards
+                //      p board
+                //      h3 Teams
+                //      p element
+                //      h3 History
+                //      p element
+                //      h3 Players
+                //      p element
                 
         // login modal
         core-overlay(backdrop="true")#adminLogin

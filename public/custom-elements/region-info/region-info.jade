@@ -1,0 +1,67 @@
+link(rel="import", href="/components/core-toolbar/core-toolbar.html")
+link(rel="import", href="/components/core-header-panel/core-header-panel.html")
+link(rel="import", href="/components/core-ajax/core-ajax.html")
+link(rel="import", href="/components/paper-icon-button/paper-icon-button.html")
+link(rel="import", href="/components/paper-button/paper-button.html")
+link(rel="import", href="/components/paper-shadow/paper-shadow.html")
+link(rel="import", href="/components/core-icon/core-icon.html")
+link(rel="import", href="/components/core-icon-button/core-icon-button.html")
+
+link(rel="stylesheet", href="./region-info.css")
+
+
+polymer-element(name="region-info", attributes="regionid players name")
+  template
+    style.
+      :host {
+      }
+      .content {
+        min-width: 300px;
+      }
+      
+    core-ajax(url="/api/region/{{regionid}}" auto response="{{response}}", on-core-response="{{handle}}")#regionInfo
+    core-ajax(url="/api/player/*/region/{{regionid}}" auto response="{{playerList}}", on-core-response="{{handleplayers}}" handleAs="json")#playerInfo
+    div(layout horizontal flex)
+      core-header-panel(mode="scroll" flex)
+        core-toolbar
+          span {{name}}
+          span(flex)
+          paper-menu-button
+            core-icon-button(icon="menu")
+            core-dropdown(layered halign="right").dropdown
+              core-menu
+                paper-item(on-tap="{{toggleLogin}}") Admin
+                paper-item toast
+                paper-item toast
+                paper-item toast
+
+        .maxcontent(fit)
+          h2 Description
+          p Region description.
+          h2 Child Elements
+          h3 Players
+          div(fit)
+            core-list(flex data="{{playerList}}")
+              template
+                p {{model.name}}
+            
+          template(if="{{!playerList}}")
+            p No players.
+
+   script().
+    Polymer('region-info', {
+      ready : function() {
+        console.log(this.regionid);
+      },
+      url : '/api/region/' + this.regionid,
+      handle: function(e) {
+      },
+      handleplayers: function(e) {
+        this.playerList = e.detail.response;
+        console.log(this.playerList)
+        
+      }
+    });
+
+ // script(src="/javascripts/fonts.js")
+ // script(src="/javascripts/index.js")

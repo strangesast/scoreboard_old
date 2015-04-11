@@ -10,6 +10,10 @@ core-toolbar {
   color: #E8E8E8;  /* right header text color */
 }
 
+core-toolbar > a {
+	color: white;
+}
+
 core-scaffold::shadow core-toolbar {
   background:#00274D; /* right header color */
   color: #E8E8E8;  /* right header text color */
