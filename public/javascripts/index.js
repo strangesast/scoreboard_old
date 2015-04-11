@@ -118,7 +118,7 @@ addEventListener('template-bound', function() {
 	  	kickoff(ctx, color, delay);
 	  }
 	  setTimeout(function() {
-	  	document.querySelector('#mother').$.pages.selected = "index";
+	  	//document.querySelector('#mother').$.pages.selected = "index";
 			
       //timer.style.zIndex= -1; // when finished;
 	    //window.history.replaceState({}, "index", "/index");

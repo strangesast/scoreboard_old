@@ -15,10 +15,12 @@ block links
 block content
   template(is="auto-binding")#mother
     core-header-panel(fit mode="seamed")
-      core-toolbar(horizontal layout hidden?="{{selection == 'loading'}}")
+      core-toolbar(hidden?="{{selection == 'loading'}}")
         a(href="/#index")
           core-icon-button(src="/images/icon_light.png")
             span sportsync
+        span(flex)
+        core-icon-button(icon="menu")
       .content(fit horizontal center center-justified layout)
         core-animated-pages(fit selected="{{selection}}" valueattr="page" transitions="slide-from-right cross-fade-all")#pages
           section(page="loading")
@@ -44,7 +46,7 @@ block content
             demo-page(fit)
 
     flatiron-director(route="{{selection}}" autoHash)
-
+ 
   script().
     document.addEventListener('template-bound', function(e) {
       var scope = e.target;

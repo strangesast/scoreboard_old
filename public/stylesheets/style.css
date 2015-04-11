@@ -5,6 +5,23 @@ html, body {
 	height: 100%;
 }
 
+core-toolbar {
+  background:#00274D; /* right header color */
+  color: #E8E8E8;  /* right header text color */
+}
+
+core-scaffold::shadow core-toolbar {
+  background:#00274D; /* right header color */
+  color: #E8E8E8;  /* right header text color */
+}
+
+core-scaffold::shadow core-header-panel {
+  color: #00274D; /* bottom right text color */
+  background: #F0F0F0; /* bottom right background color */
+}
+
+
+
 a {
 	color: black;
 	text-decoration: none;

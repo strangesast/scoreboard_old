@@ -4,8 +4,7 @@ var router = express.Router();
 var mongoose = require('mongoose')
     , Schema = mongoose.Schema;
 var config = require('../config')
-    , mongoUrl = config.mongoUrl;
-var Promise = require('es6-promise').Promise;
+    , mongoUrl = config.mongoUrl; var Promise = require('es6-promise').Promise;
 var models = require('../models');
 
 var db;
@@ -66,30 +65,13 @@ router.all('/', function(req, res, next) {
 	res.json("hi");
 })
 
-// check for request for socket connection for message stream, future events
-// in this region will be passed
-//router.get('*', function(req, res, next) {
-//	// return details of new connection or, if invalid, do next()
-//	var port = req.query.port;
-//	var ip = req.query.address || // get specified ip
-//	     req.headers['x-forwarded-for'] ||  // get request ip
-//	     req.connection.remoteAddress || 
-//	     req.socket.remoteAddress ||
-//	     req.connection.socket.remoteAddress;
-//	if(port === undefined || !net.isIP(ip)) return next();
-//	addSocketConnection(ip, port).then(function(result) {
-//		res.json(result)
-//	}).catch(function(err) {
-//		next(new Error(err));
-//	});
-//});
-
-router.route('/:firstType/:firstValue?')
-.get(function(req, res, next) {
+var getter = function(req, res, next) {
 	var Model = models.Models[req.params.firstType];
 	var query = {};
 	var first_value = req.params.firstValue;
-	var restrict_to = 'name _id';
+	var second_type = req.params.secondType;
+	var second_value = req.params.secondValue;
+	var restrict_to = ''//'name _id';
 
 	if(first_value !== undefined) {
 	  restrict_to = ''; // restrict to different values
@@ -99,14 +81,44 @@ router.route('/:firstType/:firstValue?')
 			query.name = first_value;
 		}
 	}
-  Model.find(query).select(restrict_to).exec(function(err, docs) {
-  	if(err) return next(new Error(err));
-  	res.json(docs);
-  });
-})
+	var found;
+	if(first_value == '*') {
+		found = Model.find({}).select(restrict_to);
+	} else {
+    found = Model.find(query).select(restrict_to)
+	}
+  if(second_type !== undefined && second_value === undefined) {
+		restrict_to = second_type.split('+').join(" ")
+		found = found.select(restrict_to);
+	} else if (second_value !== undefined) {
+		found = found.where(second_type).in(second_value.split('+'))
+	}
+	if(req.params.op == "count") {
+		found.count(function(err, count) {
+    	if(err) return next(new Error(err));
+			res.json(count)
+		});
+	} else {
+	  found.exec(function(err, docs) {
+    	if(err) return next(new Error(err));
+    	res.json(docs);
+    });
+	}
+}
+
+router.route('/:firstType/:firstValue/:secondType/:secondValue/:op')
+.get(getter);
+
+router.route('/:firstType/:firstValue/:secondType/:secondValue?')
+.get(getter);
+
+router.route('/:firstType/:firstValue?')
+.get(getter)
 .post(function(req, res, next) {
 	var Model = models.Models[req.params.firstType];
 	var body = req.body;
+
+	console.log(body);
 
 
   // if passed as array, add each

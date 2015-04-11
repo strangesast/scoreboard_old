@@ -1,7 +1,11 @@
 link(rel="import", href="/components/paper-shadow/paper-shadow.html")
 link(rel="import", href="/components/paper-spinner/paper-spinner.html")
 link(rel="import", href="/components/paper-input/paper-input.html")
+link(rel="import", href="/components/paper-toast/paper-toast.html")
+link(rel="import", href="/components/paper-item/paper-item.html")
 link(rel="import", href="/components/core-ajax/core-ajax.html")
+link(rel="import", href="/components/core-menu/core-menu.html")
+link(rel="import", href="/components/core-menu/core-submenu.html")
 link(rel="import", href="/components/core-animated-pages/core-animated-pages.html")
 
 
@@ -9,49 +13,62 @@ polymer-element(name="demo-page", attributes="data loading")
   template
     style.
       :host {
-        margin-top: 20%;
       }
       core-toolbar {
         background-color: rgba(0, 0, 0, 0);
       }
       .content {
-        min-width: 300px;
-        min-height: 100px;
-        height: 200px;
+        padding: 20px;
       }
       .add {
         margin-left: 10px;
         margin-right: 10px;
         padding-top: 20px;
-        min-height: 200px;
-        max-width: 500px;
         border-radius: 20px;
-        background-color: #E8E8E8;
+        /*background-color: #E8E8E8;*/
+      }
+      .list {
+        min-width: 300px;
       }
       .add-area {
         padding: 20px;
       }
+      .back {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+      }
       
     div(fit vertical layout center)
       core-ajax(auto, loading="{{loading}}", url="/api/demo", response="{{data}}", handleAs="json", method="GET")#list
+      paper-toast(text="test, toast")#toast
       core-animated-pages(fit, selected="{{sel}}", transitions="hero-transition cross-fade")
         section(vertical layout center)
-          h1(cross-fade) Demo
-          paper-shadow(hero-id="a" hero vertical layout center-justified center z=1 cross-fade).content
+          canvas.back
+          h1(cross-fade) Active Regions
 
-            template(repeat="{{each in data}}")
-              p {{each.name}}
+          div(cross-fade).list
+            core-menu(selected="0")
+              template(repeat="{{each in data}}")
+                core-submenu(label="{{each.name}}")
+                  core-item(label="players")
+                  core-item(label="regions")
 
             template(if="{{data.length == 0}}")
               p No existing sessions
 
-            core-icon-button(icon="add" on-click="{{_new}}") New Demo
-
             div(hidden?="{{!loading}}" fit vertical layout center center-justified)
               paper-spinner(active?="{{loading}}")
 
+
+
+          paper-shadow(hero-id="a" hero vertical layout center-justified center z=1 cross-fade).content
+            core-icon-button(icon="add" on-click="{{_new}}") New Demo
+
         section(vertical layout center-justifed)
-          div(hero-id="a" hero self-center cross-fade layout vertical center-justified).add
+          paper-shadow(z=2 hero-id="a" hero self-center cross-fade layout vertical center-justified).add
             core-toolbar.toolbar
               core-icon-button(icon="close" on-click="{{close}}")
               span(flex) {{ newname || 'New Demo'}}
@@ -60,7 +77,7 @@ polymer-element(name="demo-page", attributes="data loading")
               core-ajax(url="/api/demo", loading="{{loading}}", method="POST", on-core-response="{{handle}}")#submit
               paper-input(flex, label="Name" type="text" floatingLabel=true value="{{ newname }}") Name
               div 
-                core-icon-button(icon="done" on-click="{{submit}}")
+                core-icon-button(disabled?="{{!newname}}" icon="done" on-click="{{submit}}")
 
             
          
@@ -84,10 +101,12 @@ polymer-element(name="demo-page", attributes="data loading")
         sub.contentType = "application/json";
         sub.body = JSON.stringify(obj);
         sub.go()
+        this.newname = "";
         this.sel = 0;
       },
       handle: function(e) {
-        this.list.go()
+        this.$.toast.show()
+        this.$.list.go()
       }
     });
 

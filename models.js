@@ -35,6 +35,32 @@ schemas['Player'] = new Schema({
   history:   { type: Schema.Types.ObjectId, ref: 'History' }
 });
 
+schemas['Player'].pre('save', function(next) {
+	var name = this.name;
+	var q = {};
+	q.name = { first: name.first, last: name.last};
+	var query = Models['player'].findOne(q);
+	query.exec(function(err, docs) {
+		if(docs !== null) {
+			next(new Error('already der, son'));
+		} else {
+	    next()
+		}
+	});
+});
+
+// Record
+schemas['Record'] = new Schema({
+	value:  { type: Schema.Types.Mixed },
+	parent: { type: Schema.Types.ObjectId, ref: 'Player', required: true},
+	date:   { type: Date, default: Date.now }
+})
+
+schemas['Record'].pre('validate', function(next) {
+	console.log(this)
+	next();
+})
+
 // Team: collection of players, reference to history document
 schemas['Team'] = new Schema({
 	name:     { type: String, required: true },
@@ -45,7 +71,7 @@ schemas['Team'] = new Schema({
 // Game: collection of actions, meta information includes partipating teams / players, live status, etc
 schemas['Game'] = new Schema({
 	name:        { type: String, required: true },
-	members:     [Schema.Types.Mixed],
+	//members:     [Schema.Types.Mixed],
   startTime:   { type: Date },
 	history:     { type: Schema.Types.ObjectId, ref: 'History'},
 	createdAt: { type: Date, default: Date.now },
